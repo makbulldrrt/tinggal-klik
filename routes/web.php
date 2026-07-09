@@ -9,7 +9,8 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $lapangan = \App\Models\Lapangan::where('status', 'tersedia')->get();
+    return view('dashboard', compact('lapangan'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

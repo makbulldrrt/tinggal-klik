@@ -47,18 +47,30 @@
                     @enderror
                 </div>
 
+                @php
+                    $standard_sports = ['Futsal', 'Badminton', 'Basket', 'Tenis', 'Voli'];
+                    $is_custom = !in_array($lapangan->jenis_olahraga, $standard_sports) && !empty($lapangan->jenis_olahraga);
+                @endphp
+
                 <div class="form-group">
-                    <label for="jenis_olahraga">Jenis Olahraga</label>
-                    <select id="jenis_olahraga" name="jenis_olahraga"
-                        class="form-control {{ $errors->has('jenis_olahraga') ? 'is-invalid' : '' }}">
+                    <label for="sport_select">Jenis Olahraga</label>
+                    <select id="sport_select" class="form-control" onchange="handleSportDropdown(this)">
                         <option value="">-- Pilih Jenis Olahraga --</option>
-                        <option value="Futsal" {{ old('jenis_olahraga', $lapangan->jenis_olahraga) === 'Futsal' ? 'selected' : '' }}>Futsal</option>
-                        <option value="Badminton" {{ old('jenis_olahraga', $lapangan->jenis_olahraga) === 'Badminton' ? 'selected' : '' }}>Badminton</option>
-                        <option value="Basket" {{ old('jenis_olahraga', $lapangan->jenis_olahraga) === 'Basket' ? 'selected' : '' }}>Basket</option>
-                        <option value="Tenis" {{ old('jenis_olahraga', $lapangan->jenis_olahraga) === 'Tenis' ? 'selected' : '' }}>Tenis</option>
-                        <option value="Voli" {{ old('jenis_olahraga', $lapangan->jenis_olahraga) === 'Voli' ? 'selected' : '' }}>Voli</option>
-                        <option value="Lainnya" {{ old('jenis_olahraga', $lapangan->jenis_olahraga) === 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                        <option value="Futsal" {{ $lapangan->jenis_olahraga == 'Futsal' ? 'selected' : '' }}>Futsal</option>
+                        <option value="Badminton" {{ $lapangan->jenis_olahraga == 'Badminton' ? 'selected' : '' }}>Badminton</option>
+                        <option value="Basket" {{ $lapangan->jenis_olahraga == 'Basket' ? 'selected' : '' }}>Basket</option>
+                        <option value="Tenis" {{ $lapangan->jenis_olahraga == 'Tenis' ? 'selected' : '' }}>Tenis</option>
+                        <option value="Voli" {{ $lapangan->jenis_olahraga == 'Voli' ? 'selected' : '' }}>Voli</option>
+                        <option value="Lainnya" {{ $is_custom ? 'selected' : '' }}>Lainnya (Input Manual)</option>
                     </select>
+                    
+                    <input type="hidden" name="jenis_olahraga" id="jenis_olahraga_hidden" value="{{ old('jenis_olahraga', $lapangan->jenis_olahraga) }}">
+                    
+                    <input type="text" id="custom_sport_input" class="form-control mt-2" 
+                           style="display: {{ $is_custom ? 'block' : 'none' }};" 
+                           value="{{ $is_custom ? $lapangan->jenis_olahraga : '' }}"
+                           placeholder="Ketik nama olahraga baru..." 
+                           oninput="document.getElementById('jenis_olahraga_hidden').value = this.value">
                     @error('jenis_olahraga')
                         <p class="error-msg">{{ $message }}</p>
                     @enderror
@@ -109,6 +121,7 @@
                         <option value="">-- Pilih Status --</option>
                         <option value="tersedia" {{ old('status', $lapangan->status) === 'tersedia' ? 'selected' : '' }}>Tersedia</option>
                         <option value="tidak tersedia" {{ old('status', $lapangan->status) === 'tidak tersedia' ? 'selected' : '' }}>Tidak Tersedia</option>
+                        <option value="pemeliharaan" {{ old('status', $lapangan->status) === 'pemeliharaan' ? 'selected' : '' }}>Pemeliharaan</option>
                     </select>
                     @error('status')
                         <p class="error-msg">{{ $message }}</p>
@@ -122,4 +135,17 @@
             </form>
         </div>
     </div>
+<script>
+function handleSportDropdown(select) {
+    var customInput = document.getElementById('custom_sport_input');
+    var hiddenInput = document.getElementById('jenis_olahraga_hidden');
+    if (select.value === 'Lainnya') {
+        customInput.style.display = 'block';
+        hiddenInput.value = customInput.value;
+    } else {
+        customInput.style.display = 'none';
+        hiddenInput.value = select.value;
+    }
+}
+</script>
 </x-app-layout>
