@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Lapangan extends Model
 {
@@ -16,4 +17,9 @@ class Lapangan extends Model
         'foto_lapangan',
         'status',
     ];
+
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class, 'lapangan_id');
+    }
 }
