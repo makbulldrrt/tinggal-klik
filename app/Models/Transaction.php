@@ -1,16 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Transaction extends Model
 {
-    protected $guarded = ['id'];
+    use HasFactory;
 
-    public function booking(): BelongsTo
+    protected $fillable = [
+        'pemesanan_id',
+        'kode_transaksi',
+        'bukti_transfer',
+        'gross_amount',
+        'platform_fee',
+        'net_amount',
+        'status_pembayaran',
+    ];
+
+    public function pemesanan(): BelongsTo
     {
-        return $this->belongsTo(Booking::class, 'booking_id');
+        return $this->belongsTo(Pemesanan::class);
     }
 }
