@@ -14,6 +14,30 @@ Route::get('/dashboard', function () {
     return view('dashboard', compact('lapangan'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Rute untuk melihat Katalog Lapangan & Booking (Testing Lokal)
+Route::get('/lapangan', function () {
+    $query = \App\Models\Lapangan::query();
+    
+    // Filter Pencarian Nama
+    if (request('search')) {
+        $query->where('nama_lapangan', 'like', '%' . request('search') . '%');
+    }
+    
+    // Filter Kategori Olahraga
+    if (request('jenis') && request('jenis') !== 'semua') {
+        $query->where('jenis_olahraga', request('jenis'));
+    }
+    
+    $courts = $query->paginate(6);
+    return view('lapangan.index', compact('courts'));
+})->name('lapangan.index');
+
+// Rute Dummy Booking untuk menghindari error RouteNotFound
+Route::get('/booking/create/{lapangan_id}', function ($lapangan_id) {
+    return "Halaman Booking untuk Lapangan ID: " . $lapangan_id;
+})->name('booking.create');
+
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
