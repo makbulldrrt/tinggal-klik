@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Lapangan;
 
 #[Fillable(['name', 'email', 'password', 'role', 'email_verified_at'])]
 #[Hidden(['password', 'remember_token'])]
@@ -31,6 +32,18 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Courts (lapangan) owned/registered by this user (role = owner).
+     * Referenced by LapanganController via Eager Loading.
+     */
+    public function lapangan(): HasMany
+    {
+        return $this->hasMany(Lapangan::class, 'user_id');
+    }
+
+    /**
+     * All bookings made BY this user (role = customer).
+     */
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class, 'user_id');
