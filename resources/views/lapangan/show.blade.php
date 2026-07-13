@@ -5,14 +5,15 @@
 @php
     $lokasiRaw   = $lapangan->lokasi ?? '';
     $parts       = explode('|', $lokasiRaw);
-    $lokasiTeks  = $parts[0] ?? $lokasiRaw;
-    $coords      = isset($parts[1]) ? explode(',', $parts[1]) : [];
-    $lat         = isset($coords[0]) ? (float) $coords[0] : null;
-    $lng         = isset($coords[1]) ? (float) $coords[1] : null;
-    $hasCoords   = ($lat !== null && $lng !== null && $lat != 0 && $lng != 0);
+    $lokasiTeks  = trim($parts[0] ?? $lokasiRaw);
+    $koordinat   = trim($parts[1] ?? '');
+    $coords      = $koordinat ? explode(',', $koordinat) : [];
+    $lat         = isset($coords[0]) && $coords[0] !== '' ? (float) $coords[0] : null;
+    $lng         = isset($coords[1]) && $coords[1] !== '' ? (float) $coords[1] : null;
+    $hasCoords   = ($lat !== null && $lng !== null && ($lat != 0 || $lng != 0));
 
-    $sportKey    = strtolower(trim($lapangan->jenis_olahraga ?? ''));
-    $sportMeta   = [
+    $sportKey  = strtolower(trim($lapangan->jenis_olahraga ?? ''));
+    $sportMeta = [
         'futsal'    => ['icon' => 'sports_soccer',    'bg' => '#dfe8ff', 'fg' => '#00458e'],
         'badminton' => ['icon' => 'sports_tennis',    'bg' => '#d3e3ff', 'fg' => '#004882'],
         'basket'    => ['icon' => 'sports_basketball','bg' => '#fde8d3', 'fg' => '#7a3000'],
@@ -23,6 +24,8 @@
     $isAvailable = strtolower($lapangan->status ?? '') === 'tersedia';
     $imgSrc      = !empty($lapangan->foto_lapangan) ? asset('storage/' . $lapangan->foto_lapangan) : null;
 @endphp
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
     .detail-hero-img {
@@ -63,7 +66,7 @@
         font-size: 12px;
         font-weight: 600;
     }
-    .status-pill.tersedia    { background: rgba(26,127,69,.12); color: #1a7f45; border: 1px solid rgba(26,127,69,.25); }
+    .status-pill.tersedia     { background: rgba(26,127,69,.12); color: #1a7f45; border: 1px solid rgba(26,127,69,.25); }
     .status-pill.pemeliharaan { background: rgba(186,26,26,.10); color: #ba1a1a; border: 1px solid rgba(186,26,26,.20); }
     .detail-price {
         font-size: 32px;
@@ -117,12 +120,22 @@
         padding: 20px 22px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
-    .map-container {
-        border-radius: 14px;
-        overflow: hidden;
-        border: 1px solid #e0e0e0;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    .map-hint-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #92400e;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: background .2s;
     }
+    .map-hint-bar:hover { background: #fef3c7; }
 </style>
 
 <div style="font-family:'Inter',system-ui,sans-serif;">
@@ -201,8 +214,12 @@
 
             <div class="info-card">
                 <p style="font-size:13px;font-weight:600;color:#727784;text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px;">Lokasi di Peta</p>
+
                 @if($hasCoords)
-                    <div id="detail-map" class="map-container" style="height:350px;width:100%;"></div>
+                    <div class="map-hint-bar" id="map-hint-btn">
+                        📍 Klik peta untuk membuka rute dan navigasi di Google Maps
+                    </div>
+                    <div id="detail-map" style="height:350px;width:100%;z-index:1;border-radius:8px;cursor:pointer;border:1px solid #e0e0e0;"></div>
                 @else
                     <div style="height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#9fa3ae;background:#f5f5f7;border-radius:12px;">
                         <span class="material-symbols-outlined" style="font-size:44px;opacity:.4;">map</span>
@@ -234,8 +251,7 @@
                         <span>{{ $lokasiTeks ?: 'Lokasi belum diatur' }}</span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined shrink-0" style="font-size:16px;font-variation-settings:'FILL' 1;">{{ $isAvailable ? 'check_circle' : 'cancel' }}
-                        </span>
+                        <span class="material-symbols-outlined shrink-0" style="font-size:16px;font-variation-settings:'FILL' 1;">{{ $isAvailable ? 'check_circle' : 'cancel' }}</span>
                         <span>{{ $isAvailable ? 'Tersedia untuk dipesan' : 'Sedang dalam pemeliharaan' }}</span>
                     </div>
                 </div>
@@ -245,7 +261,7 @@
                        id="btn-booking-lapangan"
                        class="btn-booking-main">
                         <span class="material-symbols-outlined" style="font-size:22px;font-variation-settings:'FILL' 1;">event_available</span>
-                        Pesan Sekarang
+                        Booking Lapangan Sekarang
                     </a>
                 @else
                     <div class="btn-booking-disabled">
@@ -264,31 +280,51 @@
 </div>
 
 @if($hasCoords)
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-function initDetailMap() {
-    var center = { lat: {{ $lat }}, lng: {{ $lng }} };
-    var map = new google.maps.Map(document.getElementById('detail-map'), {
-        center: center,
-        zoom: 16,
-        mapTypeControl: false,
-        streetViewControl: false,
-        gestureHandling: 'cooperative'
+(function () {
+    var lat = {{ $lat }};
+    var lng = {{ $lng }};
+
+    var redIcon = L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        shadowSize: [41, 41]
     });
-    var marker = new google.maps.Marker({
-        position: center,
-        map: map,
-        title: @json($lapangan->nama_lapangan),
-        animation: google.maps.Animation.DROP
-    });
-    var infoWindow = new google.maps.InfoWindow({
-        content: '<div style="font-family:Inter,sans-serif;padding:4px 2px;"><strong style="font-size:13px;">' + @json($lapangan->nama_lapangan) + '</strong><br><span style="font-size:12px;color:#727784;">' + @json($lokasiTeks) + '</span></div>'
-    });
-    marker.addListener('click', function() {
-        infoWindow.open(map, marker);
-    });
-}
+
+    var map = L.map('detail-map', {
+        dragging: false,
+        zoomControl: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        touchZoom: false
+    }).setView([lat, lng], 16);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(map);
+
+    var marker = L.marker([lat, lng], { icon: redIcon }).addTo(map);
+
+    function openGoogleMaps() {
+        window.open('https://www.google.com/maps/search/?api=1&query=' + lat + ',' + lng, '_blank');
+    }
+
+    map.on('click', openGoogleMaps);
+    marker.on('click', openGoogleMaps);
+
+    var hintBtn = document.getElementById('map-hint-btn');
+    if (hintBtn) {
+        hintBtn.addEventListener('click', openGoogleMaps);
+    }
+}());
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&callback=initDetailMap" async defer></script>
 @endif
 
 @endsection

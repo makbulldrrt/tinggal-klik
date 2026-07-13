@@ -7,6 +7,7 @@
     <title>Edit Lapangan — Tinggal Klik</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } } };</script>
     <style>
@@ -105,7 +106,14 @@
             </div>
             @endif
 
-            <form method="POST" action="{{ route('owner.lapangan.update', $lapangan->id) }}" enctype="multipart/form-data" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-5">
+            @php
+                $lokasiLama    = old('lokasi', $lapangan->lokasi ?? '');
+                $lokasiParts   = explode('|', $lokasiLama);
+                $alamatLama    = $lokasiParts[0] ?? '';
+                $koordinatLama = $lokasiParts[1] ?? '';
+            @endphp
+
+            <form id="form-lapangan" method="POST" action="{{ route('owner.lapangan.update', $lapangan->id) }}" enctype="multipart/form-data" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-5">
                 @csrf
                 @method('PUT')
 
@@ -131,11 +139,15 @@
                 </div>
 
                 <div>
-                    <label for="lokasi_search" class="form-label">Lokasi / Alamat</label>
-                    <input type="text" id="lokasi_search" class="form-input mb-2" placeholder="Ketik alamat untuk mencari…" autocomplete="off">
-                    <div id="map" style="height:300px;width:100%;border-radius:0.625rem;border:1px solid #e2e8f0;margin-bottom:0.5rem;"></div>
-                    <input type="hidden" id="lokasi" name="lokasi" value="{{ old('lokasi', $lapangan->lokasi) }}">
-                    <p class="text-xs text-slate-400">Geser atau klik marker untuk memperbarui titik lokasi.</p>
+                    <label for="alamat_teks" class="form-label">Alamat Jalan</label>
+                    <input type="text" id="alamat_teks" class="form-input mb-3" placeholder="Contoh: Jl. Merdeka No.1, Jakarta Selatan" value="{{ $alamatLama }}">
+
+                    <label for="koordinat_gmaps" class="form-label">Koordinat Google Maps</label>
+                    <input type="text" id="koordinat_gmaps" class="form-input mb-1" placeholder="Contoh: -6.2088,106.8456" autocomplete="off" value="{{ $koordinatLama }}">
+                    <p class="text-xs text-slate-400 mb-2">Buka Google Maps → klik lokasi → salin koordinat → tempelkan di sini.</p>
+
+                    <div id="map" style="height:300px;width:100%;margin-top:10px;z-index:1;border-radius:8px;border:1px solid #e2e8f0;"></div>
+                    <input type="hidden" id="lokasi" name="lokasi" value="{{ $lokasiLama }}">
                 </div>
 
                 <div>
@@ -169,78 +181,92 @@
 </div>
 
 </div>
-</body>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-function initOwnerMap() {
-    var defaultCenter = { lat: -6.2088, lng: 106.8456 };
-    var defaultZoom = 13;
-    var lokasiInput = document.getElementById('lokasi');
-    var searchInput = document.getElementById('lokasi_search');
-    var storedVal = lokasiInput.value;
+(function () {
+    var redIcon = L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        shadowSize: [41, 41]
+    });
 
-    if (storedVal && storedVal.indexOf('|') !== -1) {
-        var parts = storedVal.split('|');
-        searchInput.value = parts[0];
-        var coords = parts[1].split(',');
-        var lat = parseFloat(coords[0]);
-        var lng = parseFloat(coords[1]);
-        if (!isNaN(lat) && !isNaN(lng)) {
-            defaultCenter = { lat: lat, lng: lng };
-            defaultZoom = 16;
+    var koordinatInput = document.getElementById('koordinat_gmaps');
+    var lokasiHidden   = document.getElementById('lokasi');
+    var alamatInput    = document.getElementById('alamat_teks');
+
+    var initLat  = -6.2088;
+    var initLng  = 106.8456;
+    var initZoom = 13;
+
+    var storedKoordinat = koordinatInput.value.trim();
+    if (storedKoordinat) {
+        var kParts = storedKoordinat.split(',');
+        var kLat   = parseFloat(kParts[0]);
+        var kLng   = parseFloat(kParts[1]);
+        if (!isNaN(kLat) && !isNaN(kLng)) {
+            initLat  = kLat;
+            initLng  = kLng;
+            initZoom = 16;
         }
     }
 
-    var map = new google.maps.Map(document.getElementById('map'), {
-        center: defaultCenter,
-        zoom: defaultZoom,
-        mapTypeControl: false,
-        streetViewControl: false
-    });
-    var marker = new google.maps.Marker({
-        position: defaultCenter,
-        map: map,
-        draggable: true,
-        animation: google.maps.Animation.DROP
-    });
+    var map    = L.map('map').setView([initLat, initLng], initZoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(map);
 
-    function updateLokasi(latLng, addressText) {
-        var lat = latLng.lat().toFixed(6);
-        var lng = latLng.lng().toFixed(6);
-        lokasiInput.value = addressText + '|' + lat + ',' + lng;
+    var marker = L.marker([initLat, initLng], { icon: redIcon }).addTo(map);
+
+    function convertDMSToDecimal(dmsStr) {
+        var matches = dmsStr.match(/(\d+(?:\.\d+)?)[^\dA-Za-z]*(\d+(?:\.\d+)?)[^\dA-Za-z]*(\d+(?:\.\d+)?)[^\dA-Za-z]*([NSEWnsew])/g);
+        if (!matches || matches.length !== 2) return null;
+        function parseDMS(str) {
+            var m = str.match(/(\d+(?:\.\d+)?)[^\dA-Za-z]*(\d+(?:\.\d+)?)[^\dA-Za-z]*(\d+(?:\.\d+)?)[^\dA-Za-z]*([NSEWnsew])/i);
+            if (!m) return null;
+            var dec = parseFloat(m[1]) + (parseFloat(m[2]) / 60) + (parseFloat(m[3]) / 3600);
+            var dir = m[4].toUpperCase();
+            if (dir === 'S' || dir === 'W') dec *= -1;
+            return dec;
+        }
+        var lat = parseDMS(matches[0]);
+        var lng = parseDMS(matches[1]);
+        if (lat === null || lng === null) return null;
+        return { lat: lat, lng: lng };
     }
 
-    function geocodeLatLng(latLng) {
-        var geocoder = new google.maps.Geocoder();
-        geocoder.geocode({ location: latLng }, function(results, status) {
-            if (status === 'OK' && results[0]) {
-                searchInput.value = results[0].formatted_address;
-                updateLokasi(latLng, results[0].formatted_address);
-            } else {
-                updateLokasi(latLng, '');
+    function updateMarkerFromInput() {
+        var val = koordinatInput.value.trim();
+        if (!val) return;
+
+        if (/[°'"NSEWnsew]/.test(val)) {
+            var decCoords = convertDMSToDecimal(val);
+            if (decCoords) {
+                val = decCoords.lat.toFixed(6) + ', ' + decCoords.lng.toFixed(6);
+                koordinatInput.value = val;
             }
-        });
+        }
+
+        var parts = val.split(',');
+        if (parts.length < 2) return;
+        var lat = parseFloat(parts[0].trim());
+        var lng = parseFloat(parts[1].trim());
+        if (isNaN(lat) || isNaN(lng)) return;
+        marker.setLatLng([lat, lng]);
+        map.setView([lat, lng], 16);
     }
 
-    marker.addListener('dragend', function() {
-        geocodeLatLng(marker.getPosition());
+    koordinatInput.addEventListener('input', updateMarkerFromInput);
+    koordinatInput.addEventListener('paste', function () {
+        setTimeout(updateMarkerFromInput, 50);
     });
 
-    map.addListener('click', function(e) {
-        marker.setPosition(e.latLng);
-        geocodeLatLng(e.latLng);
+    document.getElementById('form-lapangan').addEventListener('submit', function () {
+        lokasiHidden.value = alamatInput.value.trim() + '|' + koordinatInput.value.trim();
     });
-
-    var autocomplete = new google.maps.places.Autocomplete(searchInput, { types: ['geocode'] });
-    autocomplete.bindTo('bounds', map);
-    autocomplete.addListener('place_changed', function() {
-        var place = autocomplete.getPlace();
-        if (!place.geometry || !place.geometry.location) return;
-        map.setCenter(place.geometry.location);
-        map.setZoom(16);
-        marker.setPosition(place.geometry.location);
-        updateLokasi(place.geometry.location, place.formatted_address);
-    });
-}
+}());
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&libraries=places&callback=initOwnerMap" async defer></script>
 </html>
