@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Mail\InvoiceMail;
 use App\Models\Transaction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class WebhookController extends Controller
 {
@@ -27,6 +29,15 @@ class WebhookController extends Controller
             case 'settlement':
                 $transaction->update(['status_pembayaran' => 'paid']);
                 $pemesanan->update(['status_pembayaran'   => 'lunas']);
+
+                $pemesanan->load(['lapangan', 'user', 'transaction']);
+                $user = $pemesanan->user;
+
+                try {
+                    Mail::to($user->email)->send(new InvoiceMail($pemesanan));
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('InvoiceMail failed: ' . $e->getMessage());
+                }
                 break;
 
             case 'cancel':

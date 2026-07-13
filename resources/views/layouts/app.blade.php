@@ -3,20 +3,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Token Keamanan Laravel (Penting!) -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>{{ config('app.name', 'Tinggal-Klik Admin') }}</title>
-
-    <!-- Google Material Symbols & Fonts bawaan dari Stitch -->
+    <title>{{ config('app.name', 'Tinggal-Klik') }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
-
-    <!-- Load CSS/JS bawaan Laravel (Vite) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <!-- Inject Konfigurasi Warna Khusus Google Stitch agar tidak tabrakan -->
     <script>
         window.tailwind = {
             config: {
@@ -50,125 +41,189 @@
         }
     </script>
     <style>
+        * { font-family: 'Inter', sans-serif; }
         body { background-color: #f5f5f7; }
-        .glass-header { background: rgba(249, 249, 251, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .glass-header { background: rgba(249, 249, 251, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
         .card-shadow { box-shadow: rgba(0, 0, 0, 0.05) 0px 4px 12px; }
-        .image-shadow { box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px; }
+        .nav-link {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; border-radius: 10px;
+            font-size: 0.875rem; font-weight: 500;
+            color: #474649;
+            transition: background 0.15s, color 0.15s, transform 0.15s;
+            text-decoration: none; border-left: 3px solid transparent;
+        }
+        .nav-link:hover { background: rgba(0,78,159,0.07); color: #004e9f; transform: translateX(2px); }
+        .nav-link.active { background: #dfe8ff; color: #004e9f; border-left-color: #004e9f; font-weight: 600; }
+        .nav-section-label {
+            font-size: 0.65rem; font-weight: 700; color: #9fa3ae;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            padding: 0 12px; margin: 16px 0 4px;
+        }
     </style>
+    @stack('styles')
 </head>
-<body class="font-sans antialiased text-on-surface min-h-screen flex">
+<body class="antialiased text-on-surface min-h-screen flex">
 
-    <!-- 1. SIDEBAR DESKTOP (Kustom Stitch) -->
-    <nav class="hidden md:flex flex-col h-screen w-72 bg-surface-container-low border-r border-hairline py-6 px-4 gap-y-2 sticky top-0 z-40 shrink-0">
-        <div class="flex items-center gap-3 px-3 mb-8">
-            <div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">admin_panel_settings</span>
+    <nav class="hidden md:flex flex-col h-screen w-64 bg-white border-r border-hairline py-5 px-3 sticky top-0 z-40 shrink-0 shadow-sm">
+        <div class="flex items-center gap-3 px-3 mb-6">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shrink-0 shadow">
+                <span class="material-symbols-outlined text-white text-[18px]" style="font-variation-settings:'FILL' 1;">stadium</span>
             </div>
             <div>
-                <h2 class="font-headline-md text-[20px] leading-tight font-bold text-primary">Tinggal-Klik Admin</h2>
-                <p class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Multi-Role Dashboard</p>
+                <h2 class="text-[15px] leading-tight font-bold text-primary">Tinggal-Klik</h2>
+                <p class="text-[11px] text-outline mt-0.5">Marketplace Lapangan</p>
             </div>
         </div>
 
-        <!-- Links Menu Navigasi -->
-        <div class="flex-1 space-y-1 overflow-y-auto pr-1">
-            <a class="flex items-center gap-3 px-3 py-2.5 rounded-md bg-primary-fixed text-on-primary-fixed border-l-4 border-primary font-semibold transition-all duration-200" href="#">
-                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
-                <span class="text-sm">Financial Dashboard</span>
+        <div class="flex-1 overflow-y-auto pr-1 space-y-0.5">
+            @if(auth()->check() && auth()->user()->role !== 'pelanggan')
+            <p class="nav-section-label">Manajemen</p>
+            <a class="nav-link {{ request()->is('owner/lapangan') || request()->is('lapangan') ? 'active' : '' }}" href="@if(request()->is('owner/lapangan')) {{ url('/lapangan') }} @else {{ url('/owner/lapangan') }} @endif">
+                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 1;">dashboard</span>
+                <span>Dashboard Lapangan</span>
             </a>
-            <a class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-secondary-fixed-variant hover:bg-surface-variant/50 hover:translate-x-1 transition-all duration-200 border-l-4 border-transparent" href="#">
-                <span class="material-symbols-outlined">sports_tennis</span>
-                <span class="text-sm">Court Catalog</span>
+            @endif
+
+            <p class="nav-section-label">Katalog</p>
+            <a class="nav-link {{ request()->is('lapangan') || request()->is('lapangan/*') ? 'active' : '' }}" href="/lapangan">
+                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 0;">sports_soccer</span>
+                <span>Katalog Lapangan</span>
             </a>
-            <a class="flex items-center gap-3 px-3 py-2.5 rounded-md text-on-secondary-fixed-variant hover:bg-surface-variant/50 hover:translate-x-1 transition-all duration-200 border-l-4 border-transparent" href="#">
-                <span class="material-symbols-outlined">history</span>
-                <span class="text-sm">Booking History</span>
+
+            @if(auth()->check())
+            <p class="nav-section-label">Akun Saya</p>
+            <a class="nav-link {{ request()->is('booking/history') ? 'active' : '' }}" href="{{ route('booking.history') }}">
+                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 0;">receipt_long</span>
+                <span>Riwayat Pemesanan</span>
             </a>
+            <a class="nav-link {{ request()->is('profile') ? 'active' : '' }}" href="{{ route('profile.edit') }}">
+                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 0;">manage_accounts</span>
+                <span>Profil Saya</span>
+            </a>
+            @endif
         </div>
 
-        <!-- Footer Sidebar (Logout) -->
-        <div class="mt-auto pt-4 border-t border-hairline space-y-1">
+        <div class="mt-4 pt-4 border-t border-hairline">
+            @if(auth()->check())
+            <div class="flex items-center gap-3 px-3 mb-3">
+                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm shrink-0">
+                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                </div>
+                <div class="min-w-0">
+                    <p class="text-sm font-semibold text-on-surface truncate">{{ auth()->user()->name }}</p>
+                    <p class="text-xs text-outline truncate">{{ ucfirst(auth()->user()->role) }}</p>
+                </div>
+            </div>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="w-full flex items-center gap-3 px-3 py-2 rounded-md text-error hover:bg-error-container/50 transition-colors text-left">
-                    <span class="material-symbols-outlined">logout</span>
-                    <span class="text-sm font-semibold">Logout</span>
+                <button type="submit" class="nav-link w-full text-left text-error hover:bg-red-50 hover:text-red-700">
+                    <span class="material-symbols-outlined text-[18px]">logout</span>
+                    <span>Keluar</span>
                 </button>
             </form>
+            @else
+            <a href="{{ route('login') }}" class="nav-link">
+                <span class="material-symbols-outlined text-[18px]">login</span>
+                <span>Masuk</span>
+            </a>
+            @endif
         </div>
     </nav>
 
-    <!-- 2. WRAPPER UTAMA -->
     <div class="flex-1 flex flex-col min-w-0">
-        
-        <!-- TOP APP BAR / HEADER -->
-        <header class="glass-header border-b border-hairline sticky top-0 z-30 h-16 px-margin-mobile md:px-margin-desktop w-full flex justify-between items-center shrink-0">
+
+        <header class="glass-header border-b border-hairline sticky top-0 z-30 h-14 px-4 md:px-8 w-full flex justify-between items-center shrink-0">
             <button id="mobileMenuBtn" class="md:hidden text-secondary p-2 -ml-2 rounded-full hover:bg-surface-container-low transition-colors">
                 <span class="material-symbols-outlined">menu</span>
             </button>
-            <div class="md:hidden font-headline-md text-[20px] font-bold text-primary">Tinggal-Klik</div>
-            
-            <div class="flex-1 flex items-center justify-end gap-4">
-                <div class="hidden md:flex relative w-64">
-                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
-                    <input class="w-full bg-surface-container-lowest border border-hairline rounded-full py-1.5 pl-10 pr-4 text-sm focus:outline-none focus:border-focus-ring focus:ring-1" placeholder="Search dashboard..." type="text"/>
+            <div class="md:hidden text-[17px] font-bold text-primary">Tinggal-Klik</div>
+
+            <div class="flex-1 flex items-center justify-end gap-3">
+                @if(auth()->check())
+                <div class="hidden sm:flex items-center gap-2 text-sm text-on-surface-variant">
+                    <span class="font-medium text-on-surface">{{ auth()->user()->name }}</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-semibold">{{ ucfirst(auth()->user()->role) }}</span>
                 </div>
-                <!-- Informasi User Login -->
-                <div class="flex items-center gap-2">
-                    <span class="text-sm font-medium text-gray-700 hidden sm:inline">{{ Auth::user()->name ?? 'User' }}</span>
-                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
-                        {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
-                    </div>
-                </div>
+                @else
+                <a href="{{ route('login') }}" class="text-sm font-semibold text-primary hover:underline">Masuk</a>
+                @endif
             </div>
         </header>
 
-        <!-- KONTEN DINAMIS (DIISI OLEH VIEW HALAMAN LAIN) -->
-        <main class="flex-1 overflow-y-auto p-margin-mobile md:p-margin-desktop">
-            <div class="max-w-container-max mx-auto">
+        <main class="flex-1 overflow-y-auto p-4 md:p-8">
+            <div class="max-w-[1440px] mx-auto">
                 @yield('content')
             </div>
         </main>
+
+        <footer class="border-t border-hairline bg-white py-4 px-8 text-center">
+            <p class="text-sm text-gray-400">© 2026 Tinggal-Klik Marketplace. Semua Hak Dilindungi.</p>
+        </footer>
     </div>
 
-    <!-- 3. MOBILE SIDEBAR OVERLAY -->
     <div id="mobileSidebarOverlay" class="fixed inset-0 bg-on-background/50 backdrop-blur-sm z-[60] hidden transition-opacity">
-        <aside id="mobileSidebar" class="absolute left-0 top-0 bottom-0 w-72 bg-surface flex flex-col py-6 px-4 transform -translate-x-full transition-transform duration-300 ease-in-out">
-            <div class="flex justify-between items-center px-4 mb-6">
-                <h2 class="font-label-lg text-label-lg text-on-surface font-bold">Menu Navigasi</h2>
-                <button id="closeMobileMenuBtn" class="p-2 rounded-full hover:bg-surface-container-low text-on-surface-variant">
+        <aside id="mobileSidebar" class="absolute left-0 top-0 bottom-0 w-64 bg-white flex flex-col py-5 px-3 transform -translate-x-full transition-transform duration-300 ease-in-out shadow-xl">
+            <div class="flex justify-between items-center px-3 mb-5">
+                <h2 class="font-bold text-on-surface text-sm">Menu Navigasi</h2>
+                <button id="closeMobileMenuBtn" class="p-1.5 rounded-full hover:bg-surface-container-low text-on-surface-variant">
                     <span class="material-symbols-outlined">close</span>
                 </button>
             </div>
-            <nav class="flex-1 overflow-y-auto space-y-1">
-                <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary-fixed text-on-primary-fixed border-l-4 border-primary font-semibold" href="#">
-                    <span class="material-symbols-outlined">dashboard</span>
-                    <span>Financial Dashboard</span>
+            <nav class="flex-1 overflow-y-auto space-y-0.5">
+                @if(auth()->check() && auth()->user()->role !== 'pelanggan')
+                <a class="nav-link {{ request()->is('owner/lapangan') || request()->is('lapangan') ? 'active' : '' }}" href="@if(request()->is('owner/lapangan')) {{ url('/lapangan') }} @else {{ url('/owner/lapangan') }} @endif">
+                    <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 1;">dashboard</span>
+                    <span>Dashboard Lapangan</span>
                 </a>
+                @endif
+                <a class="nav-link {{ request()->is('lapangan') || request()->is('lapangan/*') ? 'active' : '' }}" href="/lapangan">
+                    <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 0;">sports_soccer</span>
+                    <span>Katalog Lapangan</span>
+                </a>
+                @if(auth()->check())
+                <a class="nav-link {{ request()->is('profile') ? 'active' : '' }}" href="{{ route('profile.edit') }}">
+                    <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 0;">manage_accounts</span>
+                    <span>Profil Saya</span>
+                </a>
+                @endif
             </nav>
+            @if(auth()->check())
+            <div class="mt-4 pt-4 border-t border-hairline">
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="nav-link w-full text-left text-error hover:bg-red-50">
+                        <span class="material-symbols-outlined text-[18px]">logout</span>
+                        <span>Keluar</span>
+                    </button>
+                </form>
+            </div>
+            @endif
         </aside>
     </div>
 
-    <!-- Logic Script Menu Mobile Interaktif -->
     <script>
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const closeMobileMenuBtn = document.getElementById('closeMobileMenuBtn');
-        const overlay = document.getElementById('mobileSidebarOverlay');
-        const sidebar = document.getElementById('mobileSidebar');
+    (function () {
+        var mobileMenuBtn     = document.getElementById('mobileMenuBtn');
+        var closeMobileMenuBtn = document.getElementById('closeMobileMenuBtn');
+        var overlay           = document.getElementById('mobileSidebarOverlay');
+        var sidebar           = document.getElementById('mobileSidebar');
 
         function toggleMenu() {
             if (overlay.classList.contains('hidden')) {
                 overlay.classList.remove('hidden');
-                setTimeout(() => sidebar.classList.remove('-translate-x-full'), 10);
+                setTimeout(function () { sidebar.classList.remove('-translate-x-full'); }, 10);
             } else {
                 sidebar.classList.add('-translate-x-full');
-                setTimeout(() => overlay.classList.add('hidden'), 300);
+                setTimeout(function () { overlay.classList.add('hidden'); }, 300);
             }
         }
 
-        if(mobileMenuBtn) mobileMenuBtn.addEventListener('click', toggleMenu);
-        if(closeMobileMenuBtn) closeMobileMenuBtn.addEventListener('click', toggleMenu);
-        if(overlay) overlay.addEventListener('click', (e) => { if (e.target === overlay) toggleMenu(); });
+        if (mobileMenuBtn)      mobileMenuBtn.addEventListener('click', toggleMenu);
+        if (closeMobileMenuBtn) closeMobileMenuBtn.addEventListener('click', toggleMenu);
+        if (overlay)            overlay.addEventListener('click', function (e) { if (e.target === overlay) toggleMenu(); });
+    }());
     </script>
+    @stack('scripts')
 </body>
 </html>

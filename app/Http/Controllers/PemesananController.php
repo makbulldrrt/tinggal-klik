@@ -18,6 +18,43 @@ use Illuminate\View\View;
 
 class PemesananController extends Controller
 {
+    public function index(): View
+    {
+        $user = Auth::user();
+
+        if ($user->role === 'owner') {
+            $lapanganIds = Lapangan::where('user_id', $user->id)->pluck('id');
+
+            $pemesanans = Pemesanan::with(['lapangan', 'user', 'transaction'])
+                ->whereIn('lapangan_id', $lapanganIds)
+                ->latest()
+                ->get();
+        } else {
+            $pemesanans = Pemesanan::with(['lapangan', 'transaction'])
+                ->where('user_id', $user->id)
+                ->latest()
+                ->get();
+        }
+
+        return view('pemesanan.history', compact('pemesanans', 'user'));
+    }
+
+    public function invoice(int $id): View
+    {
+        $user = Auth::user();
+        $pemesanan = Pemesanan::with(['lapangan.owner', 'user', 'transaction'])->findOrFail($id);
+
+        if ($user->role === 'pelanggan' && $pemesanan->user_id !== $user->id) {
+            abort(403);
+        }
+
+        if ($user->role === 'owner' && $pemesanan->lapangan->user_id !== $user->id) {
+            abort(403);
+        }
+
+        return view('pemesanan.invoice', compact('pemesanan'));
+    }
+
     public function create(int|string $lapangan_id): View
     {
         $lapangan = Lapangan::findOrFail($lapangan_id);

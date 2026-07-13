@@ -2,12 +2,7 @@
 
 @section('content')
 
-{{-- ============================================================
-     PAGE: Court Catalog — resources/views/lapangan/index.blade.php
-     PJ   : Mahdi | Sprint: Langkah 3 (Hari 2)
-     Extends layouts.app — DO NOT add <html>/<body> tags here.
-     All colours reference the M3 tokens injected in app.blade.php.
-     ============================================================ --}}
+
 
 <style>
     /* ── Catalog-scoped styles ── */
@@ -271,7 +266,24 @@
     .pagination-outer span[aria-disabled="true"] > span { color: #c1c6d5; cursor: default; }
 </style>
 
-{{-- ── HERO BANNER ── --}}
+@if(auth()->check() && auth()->user()->role === 'pelanggan')
+<div class="mb-5 bg-gradient-to-r from-[#eef2ff] to-[#e0e7ff] border border-[#c7d2fe] rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+    <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white shrink-0">
+            <span class="material-symbols-outlined" style="font-size: 20px;">storefront</span>
+        </div>
+        <div>
+            <h4 class="text-sm font-bold text-indigo-900 mb-0.5" style="font-family:'Inter',system-ui,sans-serif;">Anda adalah seorang pemilik lapangan?</h4>
+            <p class="text-xs text-indigo-700" style="font-family:'Inter',system-ui,sans-serif;">Silahkan anda daftar menjadi mitra kami dan mulai kelola lapangan Anda sendiri.</p>
+        </div>
+    </div>
+    <a href="{{ route('mitra.register') }}" class="w-full sm:w-auto px-5 py-2 bg-indigo-600 hover:bg-indigo-700 transition-colors text-white text-sm font-semibold rounded-full shadow flex items-center justify-center gap-2" style="font-family:'Inter',system-ui,sans-serif; text-decoration:none;">
+        Daftar Menjadi Mitra Kami
+        <span class="material-symbols-outlined" style="font-size: 16px;">arrow_forward</span>
+    </a>
+</div>
+@endif
+
 <div class="catalog-hero rounded-2xl mb-6 px-6 py-8 md:px-10 md:py-10">
     <div class="relative z-10">
         <div class="flex items-center gap-2 mb-3 text-white/70 text-xs">
@@ -340,20 +352,7 @@
     </div>
 </div>
 
-{{-- ── COURTS GRID ── --}}
 @php
-    /**
-     * FIELD MAP (Blueprint → Actual Lapangan model)
-     *   foto           → foto_lapangan
-     *   jenis_lapangan → jenis_olahraga
-     *   lokasi         → (future column; fallback below)
-     *   nama_lapangan  ✓
-     *   harga_per_jam  ✓
-     *   status         ✓
-     *
-     * Dummy data is injected ONLY when $courts is absent
-     * so Mahdi can visually test the template immediately.
-     */
     if (!isset($courts)) {
         $courts = collect([
             (object)['id'=>1,'nama_lapangan'=>'Futsal GOR Merdeka',         'jenis_olahraga'=>'Futsal',   'harga_per_jam'=>80000, 'status'=>'tersedia',      'foto_lapangan'=>null],
@@ -435,9 +434,16 @@
                 <span class="status-badge {{ $statusKey }}">{{ $statusLabel }}</span>
             </div>
 
-            {{-- Body --}}
             <div class="court-card-body">
                 <h2 class="court-name">{{ $court->nama_lapangan }}</h2>
+
+                @php $vendorName = $court->owner->name ?? null; @endphp
+                @if($vendorName)
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;">
+                    <span class="material-symbols-outlined" style="font-size:13px;color:#727784;font-variation-settings:'FILL' 0;">storefront</span>
+                    <span style="font-size:11px;color:#727784;font-weight:500;">Oleh: {{ $vendorName }}</span>
+                </div>
+                @endif
 
                 <p class="court-location">
                     <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 0;">location_on</span>
@@ -512,19 +518,16 @@
 
 </div>
 
-{{-- ── PAGINATION ── --}}
+
 @if(isset($courts) && method_exists($courts,'hasPages') && $courts->hasPages())
     <div class="pagination-outer">
         {{ $courts->appends(request()->query())->links() }}
     </div>
 @endif
 
-{{-- ── PAGE SCRIPTS ── --}}
 <script>
 (function () {
     'use strict';
-
-    /* Debounced live search */
     var inp = document.getElementById('hero-search-input');
     if (inp) {
         var t;
@@ -534,7 +537,6 @@
         });
     }
 
-    /* Subtle 3-D tilt on card hover */
     document.querySelectorAll('.court-card').forEach(function (card) {
         card.addEventListener('mousemove', function (e) {
             var r  = card.getBoundingClientRect();
