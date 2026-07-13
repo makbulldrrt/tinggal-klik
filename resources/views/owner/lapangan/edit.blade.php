@@ -131,8 +131,11 @@
                 </div>
 
                 <div>
-                    <label for="lokasi" class="form-label">Lokasi / Alamat</label>
-                    <input type="text" id="lokasi" name="lokasi" value="{{ old('lokasi', $lapangan->lokasi) }}" class="form-input">
+                    <label for="lokasi_search" class="form-label">Lokasi / Alamat</label>
+                    <input type="text" id="lokasi_search" class="form-input mb-2" placeholder="Ketik alamat untuk mencari…" autocomplete="off">
+                    <div id="map" style="height:300px;width:100%;border-radius:0.625rem;border:1px solid #e2e8f0;margin-bottom:0.5rem;"></div>
+                    <input type="hidden" id="lokasi" name="lokasi" value="{{ old('lokasi', $lapangan->lokasi) }}">
+                    <p class="text-xs text-slate-400">Geser atau klik marker untuk memperbarui titik lokasi.</p>
                 </div>
 
                 <div>
@@ -167,4 +170,77 @@
 
 </div>
 </body>
+<script>
+function initOwnerMap() {
+    var defaultCenter = { lat: -6.2088, lng: 106.8456 };
+    var defaultZoom = 13;
+    var lokasiInput = document.getElementById('lokasi');
+    var searchInput = document.getElementById('lokasi_search');
+    var storedVal = lokasiInput.value;
+
+    if (storedVal && storedVal.indexOf('|') !== -1) {
+        var parts = storedVal.split('|');
+        searchInput.value = parts[0];
+        var coords = parts[1].split(',');
+        var lat = parseFloat(coords[0]);
+        var lng = parseFloat(coords[1]);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            defaultCenter = { lat: lat, lng: lng };
+            defaultZoom = 16;
+        }
+    }
+
+    var map = new google.maps.Map(document.getElementById('map'), {
+        center: defaultCenter,
+        zoom: defaultZoom,
+        mapTypeControl: false,
+        streetViewControl: false
+    });
+    var marker = new google.maps.Marker({
+        position: defaultCenter,
+        map: map,
+        draggable: true,
+        animation: google.maps.Animation.DROP
+    });
+
+    function updateLokasi(latLng, addressText) {
+        var lat = latLng.lat().toFixed(6);
+        var lng = latLng.lng().toFixed(6);
+        lokasiInput.value = addressText + '|' + lat + ',' + lng;
+    }
+
+    function geocodeLatLng(latLng) {
+        var geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ location: latLng }, function(results, status) {
+            if (status === 'OK' && results[0]) {
+                searchInput.value = results[0].formatted_address;
+                updateLokasi(latLng, results[0].formatted_address);
+            } else {
+                updateLokasi(latLng, '');
+            }
+        });
+    }
+
+    marker.addListener('dragend', function() {
+        geocodeLatLng(marker.getPosition());
+    });
+
+    map.addListener('click', function(e) {
+        marker.setPosition(e.latLng);
+        geocodeLatLng(e.latLng);
+    });
+
+    var autocomplete = new google.maps.places.Autocomplete(searchInput, { types: ['geocode'] });
+    autocomplete.bindTo('bounds', map);
+    autocomplete.addListener('place_changed', function() {
+        var place = autocomplete.getPlace();
+        if (!place.geometry || !place.geometry.location) return;
+        map.setCenter(place.geometry.location);
+        map.setZoom(16);
+        marker.setPosition(place.geometry.location);
+        updateLokasi(place.geometry.location, place.formatted_address);
+    });
+}
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&libraries=places&callback=initOwnerMap" async defer></script>
 </html>

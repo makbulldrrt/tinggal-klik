@@ -71,4 +71,15 @@ class CatalogLapanganController extends Controller
         // Variable name MUST be $courts — do NOT rename, Mahdi's blade depends on it.
         return view('lapangan.index', compact('courts'));
     }
+
+    public function show($id): View
+    {
+        $lapangan = Lapangan::with('owner:id,name')->find($id);
+
+        if (!$lapangan) {
+            abort(404);
+        }
+
+        return view('lapangan.show', compact('lapangan'));
+    }
 }

@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('content')
 
@@ -469,10 +469,10 @@
                 </div>
 
                 @if($isAvailable)
-                    <a href="{{ route('booking.create', $court->id) }}"
+                    <a href="{{ route('katalog.show', $court->id) }}"
                        class="btn-pesan" id="btn-pesan-{{ $court->id }}">
-                        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">event_available</span>
-                        Pesan Sekarang
+                        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">stadium</span>
+                        Lihat Lapangan
                     </a>
                 @else
                     <span class="btn-pesan disabled">

@@ -23,6 +23,9 @@ Route::get('/dashboard', function () {
 Route::get('/lapangan', [CatalogLapanganController::class, 'index'])
      ->name('lapangan.index');
 
+Route::get('/lapangan/{id}', [CatalogLapanganController::class, 'show'])
+     ->name('katalog.show');
+
 Route::middleware(['auth', 'role:pelanggan'])->group(function () {
     Route::get('booking/create/{lapangan_id}', [PemesananController::class, 'create'])->name('booking.create');
     Route::post('booking/store', [PemesananController::class, 'store'])->name('booking.store');
