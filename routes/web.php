@@ -4,6 +4,9 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LapanganController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Catalog\CatalogLapanganController;
+use App\Http\Controllers\Owner\DashboardController as OwnerDashboardController;
+use App\Http\Controllers\Owner\LapanganController as OwnerLapanganController;
+use App\Http\Controllers\Owner\WithdrawalController;
 use App\Http\Controllers\PemesananController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -35,6 +38,13 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('lapangan', LapanganController::class);
+});
+
+Route::middleware(['auth', 'role:owner'])->prefix('owner')->name('owner.')->group(function () {
+    Route::get('dashboard', [OwnerDashboardController::class, 'index'])->name('dashboard');
+    Route::resource('lapangan', OwnerLapanganController::class);
+    Route::get('withdrawal/request', [WithdrawalController::class, 'create'])->name('withdrawal.create');
+    Route::post('withdrawal/request', [WithdrawalController::class, 'store'])->name('withdrawal.store');
 });
 
 require __DIR__.'/auth.php';

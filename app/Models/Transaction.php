@@ -24,6 +24,6 @@ class Transaction extends Model
 
     public function pemesanan(): BelongsTo
     {
-        return $this->belongsTo(Pemesanan::class);
+        return $this->belongsTo(Pemesanan::class, 'pemesanan_id');
     }
 }

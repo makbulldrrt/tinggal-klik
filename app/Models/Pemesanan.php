@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Pemesanan extends Model
 {
@@ -37,5 +38,10 @@ class Pemesanan extends Model
     public function lapangan(): BelongsTo
     {
         return $this->belongsTo(Lapangan::class, 'lapangan_id');
+    }
+
+    public function transaction(): HasOne
+    {
+        return $this->hasOne(Transaction::class, 'pemesanan_id');
     }
 }
