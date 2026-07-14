@@ -25,9 +25,9 @@ class LapanganController extends Controller
             'nama_lapangan'  => 'required|string|max:255',
             'jenis_olahraga' => 'nullable|string|max:100',
             'harga_per_jam'  => 'required|integer|min:1',
-            'deskripsi'      => 'nullable|string',
+            'deskripsi'      => 'required|string',
             'foto_lapangan'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'status'         => 'required|in:tersedia,tidak tersedia',
+            'status'         => 'required|in:tersedia,tidak tersedia,pemeliharaan',
         ]);
 
         if ($request->hasFile('foto_lapangan')) {
@@ -50,9 +50,9 @@ class LapanganController extends Controller
             'nama_lapangan'  => 'required|string|max:255',
             'jenis_olahraga' => 'nullable|string|max:100',
             'harga_per_jam'  => 'required|integer|min:1',
-            'deskripsi'      => 'nullable|string',
+            'deskripsi'      => 'required|string',
             'foto_lapangan'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'status'         => 'required|in:tersedia,tidak tersedia',
+            'status'         => 'required|in:tersedia,tidak tersedia,pemeliharaan',
         ]);
 
         if ($request->hasFile('foto_lapangan')) {

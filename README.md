@@ -1,58 +1,116 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Tinggal Klik - Sistem Booking Lapangan Olahraga
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem manajemen dan penyewaan lapangan olahraga (GOR) berbasis web yang dirancang untuk mendigitalisasi pencatatan jadwal, mengeliminasi risiko bentrok pengisian (*double-booking*), serta mengotomatisasi proses verifikasi pembayaran. Proyek ini dikembangkan oleh **Tim KBR Kelompok 6** sebagai solusi modern bagi pengelola sarana olahraga dan pelanggan.
 
-## About Laravel
+## Arsitektur & Fitur Utama
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+*   **Pencegahan Race Condition (Anti-Double Booking):** Menggunakan kombinasi penguncian status di sisi *frontend* (grid waktu interaktif) dan validasi transaksi atomik di sisi *backend* untuk memastikan tidak ada dua pengguna yang dapat memesan slot jam yang sama pada tanggal yang sama.
+*   **Otomatisasi Webhook Pembayaran:** Integrasi dengan *Payment Gateway* Midtrans (Sandbox Environment). Perubahan status pembayaran dari `belum_bayar` menjadi `lunas` diproses secara otomatis melalui *callback/webhook* tanpa intervensi manual dari admin atau owner.
+*   **Peta Interaktif & Geolokasi:** Integrasi Leaflet.js untuk pemetaan lokasi GOR secara presisi berbasis koordinat lintang/bujur (Latitude/Longitude) yang terhubung langsung dengan Google Maps untuk kemudahan rute.
+*   **Autentikasi & Kontrol Akses Multi-Role:** Pembagian hak akses terproteksi berbasis Laravel Middleware:
+    *   **Admin:** Monitoring metrik platform, manajemen pengguna, dan penanganan data master.
+    *   **Owner GOR:** Manajemen operasional lapangan, pemantauan riwayat transaksi masuk, dan pengajuan penarikan dana (*withdrawal*).
+    *   **Pelanggan:** Eksplorasi katalog GOR, pemesanan slot jadwal, dan manajemen riwayat ulasan/rating.
+*   **REST API Terproteksi:** Penyediaan endpoint data berformat JSON murni untuk integrasi eksternal, diamankan menggunakan Laravel Sanctum.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+*   **Core Framework:** Laravel 11 (PHP 8.2+)
+*   **Database Engine:** MySQL / phpmyadmin
+*   **Frontend Engine:** Blade Templating, TailwindCSS, Vanilla JavaScript (ES6)
+*   **Library & API:** Leaflet.js, Midtrans Core API
+*   **Tools Pengujian:** Postman
 
-## Learning Laravel
+## Panduan Instalasi Lokal
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Ikuti langkah-langkah berikut untuk menjalankan repositori ini di lingkungan lokal Anda:
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
+### 1. Kloning Repositori
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/makbuildrrt/tinggal-klik.git
+cd tinggal-klik
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Pemasangan Dependensi
+Pastikan PHP 8.2+ dan Node.js sudah terinstal di sistem Anda, kemudian jalankan:
+```bash
+composer install
+npm install
+```
 
-## Contributing
+### 3. Konfigurasi Environment
+Salin berkas `.env.example` menjadi `.env`:
+```bash
+cp .env.example .env
+```
+Buka berkas `.env` baru tersebut, lalu sesuaikan kredensial database Anda:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=db_tinggal_klik
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+> **Catatan Pengujian Registrasi:** Untuk menghindari kegagalan *timeout* saat mengirim email verifikasi akun baru di lokal, ubah driver mailer menjadi mode log. Seluruh tautan verifikasi akan otomatis tercatat di berkas `storage/logs/laravel.log`.
+```env
+MAIL_MAILER=log
+```
 
-## Code of Conduct
+### 4. Inisialisasi Aplikasi & Database
+Generate key aplikasi, pasang API guard, dan jalankan migrasi beserta data seeder awal:
+```bash
+php artisan key:generate
+php artisan install:api
+php artisan migrate:fresh --seed
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 5. Menjalankan Server
+Buka dua tab terminal terpisah untuk menjalankan compiler frontend dan server lokal Laravel:
 
-## Security Vulnerabilities
+*   **Terminal 1:** `npm run dev`
+*   **Terminal 2:** `php artisan serve`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Aplikasi dapat diakses penuh melalui peramban di alamat `http://127.0.0.1:8000`.
 
-## License
+## Dokumentasi REST API
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Seluruh endpoint API mengembalikan data dalam format **JSON murni**. Query pengumpulan data dioptimalkan menggunakan teknik *Eager Loading* untuk mencegah masalah *N+1 query*.
+
+### Ringkasan Endpoint
+
+| Method | Endpoint URL | Otentikasi | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/lapangan` | Publik | Mengambil semua daftar katalog lapangan aktif. |
+| `GET` | `/api/lapangan/{id}` | Publik | Mengambil objek detail lengkap dari satu lapangan. |
+| `GET` | `/api/ulasan` | Publik | Mengambil data ulasan beserta objek relasi data `user`. |
+| `POST` | `/api/lapangan` | Sanctum | Menambahkan data lapangan baru (Khusus Role Owner/Admin). |
+
+### Contoh Respons JSON (`GET /api/ulasan`)
+```json
+[
+  {
+    "id": 1,
+    "user_id": 1,
+    "lapangan_id": 1,
+    "rating": 5,
+    "komentar": "Tempatnya sangat bersih, pencahayaan lapangan futsalnya sangat bagus untuk main malam hari!",
+    "created_at": "2026-07-14T16:16:16.000000Z",
+    "updated_at": "2026-07-14T16:16:16.000000Z",
+    "user": {
+      "id": 1,
+      "name": "Makbul Darojat",
+      "email": "makbul@tinggalklik.com",
+      "role": "pelanggan"
+    }
+  }
+]
+```
+
+## Tim Pengembang (KBR Kelompok 6)
+
+*   **Makbul Darojat** - Project Manager, QA, QC, Fullstack
+*   **Ahmad Mahdi** - Frontend Integration
+*   **Raihan Hafidz** - Database Administrator
+*   **Decky** - Backend Developer
