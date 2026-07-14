@@ -36,6 +36,13 @@ class DatabaseSeeder extends Seeder
                 'net_amount' => $pemesanan->total_harga - ($pemesanan->total_harga * 0.02),
                 'status_pembayaran' => 'paid',
             ]);
+
+            \App\Models\Ulasan::create([
+                'user_id' => $user->id,
+                'lapangan_id' => $lapangan->id,
+                'rating' => 5,
+                'komentar' => 'Tempatnya sangat bersih, pencahayaan lapangan futsalnya sangat bagus untuk main malam hari!',
+            ]);
         }
     }
 }
