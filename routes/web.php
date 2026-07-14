@@ -16,13 +16,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/lapangan', [CatalogLapanganController::class, 'index'])
-     ->name('lapangan.index');
-
-Route::get('/lapangan/{id}', [CatalogLapanganController::class, 'show'])
-     ->name('katalog.show');
-
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/lapangan', [CatalogLapanganController::class, 'index'])->name('lapangan.index');
+    Route::get('/lapangan/{id}', [CatalogLapanganController::class, 'show'])->name('katalog.show');
+
     Route::get('/dashboard', function () {
         $lapangan = \App\Models\Lapangan::where('status', 'tersedia')->get();
         return view('dashboard', compact('lapangan'));
