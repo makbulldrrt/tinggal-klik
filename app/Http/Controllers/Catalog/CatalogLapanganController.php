@@ -34,11 +34,7 @@ class CatalogLapanganController extends Controller
 
     public function show($id): View
     {
-        $lapangan = Lapangan::with('owner:id,name')->find($id);
-
-        if (!$lapangan) {
-            abort(404);
-        }
+        $lapangan = Lapangan::with(['owner:id,name', 'ulasan.user'])->findOrFail($id);
 
         return view('lapangan.show', compact('lapangan'));
     }

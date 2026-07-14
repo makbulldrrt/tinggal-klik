@@ -27,7 +27,7 @@ Route::get('/lapangan', [CatalogLapanganController::class, 'index'])
 Route::get('/lapangan/{id}', [CatalogLapanganController::class, 'show'])
      ->name('katalog.show');
 
-Route::middleware(['auth', 'role:pelanggan'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:pelanggan'])->group(function () {
     Route::get('booking/create/{lapangan_id}', [PemesananController::class, 'create'])->name('booking.create');
     Route::post('booking/store', [PemesananController::class, 'store'])->name('booking.store');
 });
@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/api/lapangan/{id}/availability', [PemesananController::class, 'getAvailability'])->name('lapangan.availability');
 });
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -49,7 +50,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('lapangan', LapanganController::class);
 });
 
-Route::middleware(['auth', 'role:owner'])->prefix('owner')->name('owner.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:owner'])->prefix('owner')->name('owner.')->group(function () {
     Route::get('dashboard', [OwnerDashboardController::class, 'index'])->name('dashboard');
     Route::resource('lapangan', OwnerLapanganController::class);
     Route::get('withdrawal/request', [WithdrawalController::class, 'create'])->name('withdrawal.create');

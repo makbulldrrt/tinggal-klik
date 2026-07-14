@@ -4,14 +4,74 @@ namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
 use App\Models\Lapangan;
+use App\Models\Transaction;
+use App\Models\Withdrawal;
 use Illuminate\Http\Request;
 
 class LapanganController extends Controller
 {
     public function index()
     {
-        $lapangan = Lapangan::where('user_id', auth()->id())->latest()->paginate(10);
-        return view('owner.lapangan.index', compact('lapangan'));
+        $ownerId = auth()->id();
+
+        $lapangan = Lapangan::where('user_id', $ownerId)->latest()->paginate(10);
+
+        $ownerLapanganIds = Lapangan::where('user_id', $ownerId)->pluck('id');
+
+        $paidTransactions = Transaction::whereIn('status_pembayaran', ['paid', 'lunas'])
+            ->with('pemesanan.lapangan')
+            ->whereHas('pemesanan', function ($q) use ($ownerLapanganIds) {
+                $q->whereIn('lapangan_id', $ownerLapanganIds);
+            })
+            ->get();
+
+        $totalKotor    = $paidTransactions->sum('gross_amount');
+        $totalPotongan = $paidTransactions->sum('platform_fee');
+        $totalBersih   = $paidTransactions->sum('net_amount');
+
+        $totalDitarik = (float) Withdrawal::where('user_id', $ownerId)
+            ->where('status', 'approved')
+            ->sum('jumlah_penarikan');
+
+        $sisaSaldo = $totalBersih - $totalDitarik;
+
+        $currentYear = now()->year;
+
+        $monthlyLabels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+        $monthlyData   = array_fill(0, 12, 0.0);
+
+        foreach ($paidTransactions as $t) {
+            $tYear  = (int) date('Y', strtotime($t->created_at));
+            $tMonth = (int) date('n', strtotime($t->created_at));
+            if ($tYear === $currentYear) {
+                $monthlyData[$tMonth - 1] += (float) $t->net_amount;
+            }
+        }
+
+        $sportGroups = [];
+        foreach ($paidTransactions as $t) {
+            $jenis = $t->pemesanan->lapangan->jenis_olahraga ?? 'Lainnya';
+            if (!isset($sportGroups[$jenis])) {
+                $sportGroups[$jenis] = 0.0;
+            }
+            $sportGroups[$jenis] += (float) $t->net_amount;
+        }
+
+        $sportLabels = array_keys($sportGroups);
+        $sportData   = array_values($sportGroups);
+
+        return view('owner.lapangan.index', compact(
+            'lapangan',
+            'totalKotor',
+            'totalPotongan',
+            'totalBersih',
+            'totalDitarik',
+            'sisaSaldo',
+            'monthlyLabels',
+            'monthlyData',
+            'sportLabels',
+            'sportData'
+        ));
     }
 
     public function create()

@@ -8,6 +8,7 @@ use App\Models\Lapangan;
 use App\Models\Pemesanan;
 use App\Models\Transaction;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -60,6 +61,27 @@ class PemesananController extends Controller
         $lapangan = Lapangan::findOrFail($lapangan_id);
 
         return view('pemesanan.create', compact('lapangan'));
+    }
+
+    public function getAvailability(int $id, Request $request): JsonResponse
+    {
+        $tanggal = $request->query('tanggal');
+
+        $bookings = Pemesanan::where('lapangan_id', $id)
+            ->where('tanggal_pesan', $tanggal)
+            ->where('status_pembayaran', '!=', 'batal')
+            ->get(['jam_mulai', 'jam_selesai']);
+
+        $booked = [];
+        foreach ($bookings as $b) {
+            $start = (int) substr($b->jam_mulai, 0, 2);
+            $end   = (int) substr($b->jam_selesai, 0, 2);
+            for ($h = $start; $h < $end; $h++) {
+                $booked[] = str_pad($h, 2, '0', STR_PAD_LEFT) . ':00';
+            }
+        }
+
+        return response()->json(array_values(array_unique($booked)));
     }
 
     public function store(Request $request): RedirectResponse

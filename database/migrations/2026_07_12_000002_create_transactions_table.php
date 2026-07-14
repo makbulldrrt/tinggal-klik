@@ -10,10 +10,13 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('booking_id')->constrained()->onDelete('cascade');
+            $table->foreignId('pemesanan_id')->constrained('pemesanan')->onDelete('cascade');
+            $table->integer('gross_amount');
+            $table->integer('platform_fee');
+            $table->integer('net_amount');
             $table->string('kode_transaksi')->unique();
             $table->string('bukti_transfer')->nullable();
-            $table->string('status_pembayaran')->default('unpaid');
+            $table->enum('status_pembayaran', ['unpaid', 'paid'])->default('unpaid');
             $table->timestamps();
         });
     }

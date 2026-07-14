@@ -228,6 +228,63 @@
                 @endif
             </div>
 
+            <div class="info-card">
+                <p style="font-size:13px;font-weight:600;color:#727784;text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px;">
+                    Testimoni &amp; Ulasan Pelanggan
+                </p>
+
+                @if($lapangan->ulasan->count() > 0)
+                    @php
+                        $avgRating = round($lapangan->ulasan->avg('rating'), 1);
+                        $fullStars = (int) floor($avgRating);
+                        $hasHalf   = ($avgRating - $fullStars) >= 0.5;
+                    @endphp
+                    <div class="flex items-center gap-3 mb-5 p-4 rounded-xl" style="background:#fffbeb;border:1px solid #fde68a;">
+                        <span style="font-size:36px;font-weight:800;color:#92400e;line-height:1;">{{ number_format($avgRating,1) }}</span>
+                        <div>
+                            <div style="font-size:22px;line-height:1;letter-spacing:2px;margin-bottom:2px;">
+                                @for($s = 1; $s <= 5; $s++)
+                                    @if($s <= $fullStars)⭐@elseif($s == $fullStars + 1 && $hasHalf)🌟@else☆@endif
+                                @endfor
+                            </div>
+                            <p style="font-size:12px;color:#92400e;font-weight:500;">{{ $lapangan->ulasan->count() }} ulasan</p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-4">
+                        @foreach($lapangan->ulasan as $review)
+                        <div style="border:1px solid #e8e8ea;border-radius:12px;padding:16px 18px;background:#fafafa;">
+                            <div class="flex items-start justify-between gap-2 mb-2">
+                                <div class="flex items-center gap-2">
+                                    <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#004e9f,#0066cc);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0;">
+                                        {{ strtoupper(substr($review->user->name ?? '?', 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <p style="font-size:14px;font-weight:600;color:#1a1c1d;line-height:1.2;">{{ $review->user->name ?? 'Pengguna' }}</p>
+                                        <p style="font-size:11px;color:#9fa3ae;">{{ $review->created_at->format('d M Y') }}</p>
+                                    </div>
+                                </div>
+                                <div style="font-size:15px;letter-spacing:1px;flex-shrink:0;">
+                                    @for($s = 1; $s <= 5; $s++)
+                                        {{ $s <= $review->rating ? '⭐' : '☆' }}
+                                    @endfor
+                                </div>
+                            </div>
+                            @if($review->komentar)
+                            <p style="font-size:14px;color:#414753;line-height:1.6;margin-top:8px;">{{ $review->komentar }}</p>
+                            @endif
+                        </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div style="text-align:center;padding:32px 16px;color:#9fa3ae;">
+                        <span class="material-symbols-outlined" style="font-size:40px;opacity:.35;display:block;margin-bottom:8px;">rate_review</span>
+                        <p style="font-size:14px;font-weight:500;">Belum ada ulasan untuk lapangan ini.</p>
+                        <p style="font-size:12px;margin-top:4px;">Jadilah yang pertama memberikan ulasan setelah menyewa!</p>
+                    </div>
+                @endif
+            </div>
+
         </div>
 
         <div class="flex flex-col gap-4">

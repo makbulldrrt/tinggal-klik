@@ -72,6 +72,11 @@ class Lapangan extends Model
         return $this->hasMany(Booking::class, 'lapangan_id');
     }
 
+    public function ulasan(): HasMany
+    {
+        return $this->hasMany(Ulasan::class, 'lapangan_id')->latest();
+    }
+
     // ──────────────────────────────────────────────────────────────────────────
     // LOCAL QUERY SCOPES
     //
