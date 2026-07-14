@@ -16,24 +16,18 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    $lapangan = \App\Models\Lapangan::where('status', 'tersedia')->get();
-    return view('dashboard', compact('lapangan'));
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::get('/lapangan', [CatalogLapanganController::class, 'index'])
      ->name('lapangan.index');
 
 Route::get('/lapangan/{id}', [CatalogLapanganController::class, 'show'])
      ->name('katalog.show');
 
-Route::middleware(['auth', 'verified', 'role:pelanggan'])->group(function () {
-    Route::get('booking/create/{lapangan_id}', [PemesananController::class, 'create'])->name('booking.create');
-    Route::post('booking/store', [PemesananController::class, 'store'])->name('booking.store');
-});
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', function () {
+        $lapangan = \App\Models\Lapangan::where('status', 'tersedia')->get();
+        return view('dashboard', compact('lapangan'));
+    })->name('dashboard');
 
-
-Route::middleware('auth')->group(function () {
     Route::get('/mitra/register', [MitraController::class, 'showForm'])->name('mitra.register');
     Route::post('/mitra/submit', [MitraController::class, 'registerMitra'])->name('mitra.submit');
     Route::get('/booking/history', [PemesananController::class, 'index'])->name('booking.history');
@@ -43,6 +37,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/api/lapangan/{id}/availability', [PemesananController::class, 'getAvailability'])->name('lapangan.availability');
+});
+
+Route::middleware(['auth', 'verified', 'role:pelanggan'])->group(function () {
+    Route::get('booking/create/{lapangan_id}', [PemesananController::class, 'create'])->name('booking.create');
+    Route::post('booking/store', [PemesananController::class, 'store'])->name('booking.store');
 });
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
