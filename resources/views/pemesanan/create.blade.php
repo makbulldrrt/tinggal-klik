@@ -120,7 +120,7 @@
 (function () {
     var lapanganId   = {{ $lapangan->id }};
     var hargaPerJam  = {{ $lapangan->harga_per_jam }};
-    var bookedSlots  = [];
+    var bookedHours  = new Set();
     var selectedJam  = [];
 
     var inputMulai   = document.getElementById('input-jam-mulai');
@@ -140,10 +140,15 @@
         return Array.from(gridEl.querySelectorAll('.slot-btn'));
     }
 
+    function jamToHour(jamStr) {
+        return parseInt(jamStr.split(':')[0], 10);
+    }
+
     function applySlotStates() {
         allButtons().forEach(function (btn) {
             var jam = btn.getAttribute('data-jam');
-            if (bookedSlots.indexOf(jam) !== -1) {
+            var hour = jamToHour(jam);
+            if (bookedHours.has(hour)) {
                 btn.className = 'slot-btn px-2 py-2.5 rounded-lg text-xs font-semibold bg-red-500 text-white transition-all duration-150 cursor-not-allowed';
                 btn.setAttribute('data-state', 'booked');
                 btn.disabled = true;
@@ -171,37 +176,27 @@
             return;
         }
 
-        var sorted = selectedJam.slice().sort();
+        var sorted   = selectedJam.slice().sort();
         var mulai    = sorted[0];
-        var endHour  = parseInt(sorted[sorted.length - 1].split(':')[0]) + 1;
+        var endHour  = parseInt(sorted[sorted.length - 1].split(':')[0], 10) + 1;
         var selesai  = String(endHour).padStart(2, '0') + ':00';
         var durasi   = sorted.length;
         var total    = durasi * hargaPerJam;
 
-        inputMulai.value   = mulai;
-        inputSelesai.value = selesai;
+        inputMulai.value        = mulai;
+        inputSelesai.value      = selesai;
         dispMulai.textContent   = mulai;
         dispSelesai.textContent = selesai;
         dispTotal.textContent   = 'Rp ' + total.toLocaleString('id-ID');
         infoEl.classList.remove('hidden');
-        btnSubmit.disabled = (selectedJam.length === 0);
-    }
-
-    function isContiguous(jam, currentSelected) {
-        if (currentSelected.length === 0) return true;
-        var sorted = currentSelected.slice().sort();
-        var first  = parseInt(sorted[0].split(':')[0]);
-        var last   = parseInt(sorted[sorted.length - 1].split(':')[0]);
-        var h      = parseInt(jam.split(':')[0]);
-        return (h === first - 1) || (h === last + 1);
+        btnSubmit.disabled = false;
     }
 
     function hasBookedSlotBetween(h1, h2) {
         var lo = Math.min(h1, h2);
         var hi = Math.max(h1, h2);
         for (var h = lo; h < hi; h++) {
-            var slot = String(h).padStart(2, '0') + ':00';
-            if (bookedSlots.indexOf(slot) !== -1) return true;
+            if (bookedHours.has(h)) return true;
         }
         return false;
     }
@@ -218,9 +213,9 @@
                     selectedJam.push(jam);
                 } else {
                     var sorted = selectedJam.slice().sort();
-                    var first  = parseInt(sorted[0].split(':')[0]);
-                    var last   = parseInt(sorted[sorted.length - 1].split(':')[0]);
-                    var h      = parseInt(jam.split(':')[0]);
+                    var first  = parseInt(sorted[0].split(':')[0], 10);
+                    var last   = parseInt(sorted[sorted.length - 1].split(':')[0], 10);
+                    var h      = parseInt(jam.split(':')[0], 10);
                     if (h < first) {
                         if (!hasBookedSlotBetween(h, first)) {
                             for (var i = h; i < first; i++) {
@@ -255,7 +250,7 @@
         if (!tanggal) return;
 
         selectedJam = [];
-        bookedSlots = [];
+        bookedHours = new Set();
         loadingEl.classList.remove('hidden');
         hintEl.classList.add('hidden');
         allButtons().forEach(function (btn) {
@@ -270,11 +265,19 @@
         })
         .then(function (res) { return res.json(); })
         .then(function (data) {
-            bookedSlots = data;
+            bookedHours = new Set();
+            data.forEach(function (row) {
+                var startH = parseInt(row.jam_mulai.split(':')[0], 10);
+                var endH   = parseInt(row.jam_selesai.split(':')[0], 10);
+                for (var h = startH; h < endH; h++) {
+                    bookedHours.add(h);
+                }
+            });
             loadingEl.classList.add('hidden');
             applySlotStates();
         })
-        .catch(function () {
+        .catch(function (err) {
+            console.error(err);
             loadingEl.classList.add('hidden');
             hintEl.classList.remove('hidden');
             hintEl.textContent = 'Gagal memuat ketersediaan. Coba pilih tanggal lagi.';
@@ -283,3 +286,4 @@
 })();
 </script>
 @endsection
+

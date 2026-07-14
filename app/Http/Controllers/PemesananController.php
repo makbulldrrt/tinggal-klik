@@ -67,21 +67,18 @@ class PemesananController extends Controller
     {
         $tanggal = $request->query('tanggal');
 
-        $bookings = Pemesanan::where('lapangan_id', $id)
-            ->where('tanggal_pesan', $tanggal)
-            ->where('status_pembayaran', '!=', 'batal')
-            ->get(['jam_mulai', 'jam_selesai']);
+        $rows = DB::table('pemesanan')
+            ->leftJoin('transactions', 'pemesanan.id', '=', 'transactions.pemesanan_id')
+            ->where('pemesanan.lapangan_id', $id)
+            ->where('pemesanan.tanggal_pesan', $tanggal)
+            ->where(function ($q) {
+                $q->whereIn('transactions.status_pembayaran', ['paid', 'lunas', 'settlement', 'capture', 'pending'])
+                  ->orWhereNull('transactions.id');
+            })
+            ->select('pemesanan.jam_mulai', 'pemesanan.jam_selesai')
+            ->get();
 
-        $booked = [];
-        foreach ($bookings as $b) {
-            $start = (int) substr($b->jam_mulai, 0, 2);
-            $end   = (int) substr($b->jam_selesai, 0, 2);
-            for ($h = $start; $h < $end; $h++) {
-                $booked[] = str_pad($h, 2, '0', STR_PAD_LEFT) . ':00';
-            }
-        }
-
-        return response()->json(array_values(array_unique($booked)));
+        return response()->json($rows->values());
     }
 
     public function store(Request $request): RedirectResponse
