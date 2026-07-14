@@ -10,11 +10,23 @@ use Illuminate\Http\Request;
 
 class LapanganController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $ownerId = auth()->id();
 
-        $lapangan = Lapangan::where('user_id', $ownerId)->latest()->paginate(10);
+        $lapangan = Lapangan::where('user_id', $ownerId)
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $q->where('nama_lapangan', 'like', '%' . $request->search . '%');
+            })
+            ->when($request->filled('kategori'), function ($q) use ($request) {
+                $q->where('jenis_olahraga', $request->kategori);
+            })
+            ->when($request->filled('status'), function ($q) use ($request) {
+                $q->where('status', $request->status);
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
         $ownerLapanganIds = Lapangan::where('user_id', $ownerId)->pluck('id');
 
