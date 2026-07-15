@@ -27,57 +27,8 @@
 <body class="bg-slate-50 text-slate-800 antialiased">
 <div class="flex h-screen overflow-hidden">
 
-<aside class="w-64 flex-shrink-0 bg-slate-900 flex flex-col">
-    <div class="flex items-center gap-3 px-6 py-5 border-b border-slate-800">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center shadow-lg">
-            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-        </div>
-        <div>
-            <p class="text-white font-semibold text-sm leading-tight">Tinggal Klik</p>
-            <p class="text-slate-400 text-xs">Owner Panel</p>
-        </div>
-    </div>
-    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        <p class="px-3 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Main</p>
-        <a href="{{ route('lapangan.index') }}" class="sidebar-link">
-            <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-            Dashboard Lapangan
-        </a>
-        <button type="button" id="nav-lapangan" onclick="showTab('lapangan')" class="sidebar-link active w-full text-left">
-            <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
-            Daftar Lapangan
-        </button>
-        <button type="button" id="nav-revenue" onclick="showTab('revenue')" class="sidebar-link w-full text-left">
-            <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-            Revenue
-        </button>
-        <a href="{{ route('owner.withdrawal.create') }}" class="sidebar-link">
-            <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-            Tarik Dana
-        </a>
-        <div class="pt-4">
-            <p class="px-3 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Account</p>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="sidebar-link w-full text-left">
-                    <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                    Logout
-                </button>
-            </form>
-        </div>
-    </nav>
-    <div class="px-4 py-4 border-t border-slate-800">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                {{ strtoupper(substr(auth()->user()->name ?? 'O', 0, 1)) }}
-            </div>
-            <div class="min-w-0">
-                <p class="text-white text-xs font-semibold truncate">{{ auth()->user()->name ?? 'Owner' }}</p>
-                <p class="text-slate-400 text-xs truncate">{{ auth()->user()->email ?? '' }}</p>
-            </div>
-        </div>
-    </div>
-</aside>
+@include('owner.partials.sidebar')
+
 
 <div class="flex-1 flex flex-col overflow-hidden">
     <header class="bg-white border-b border-slate-100 px-8 py-4 flex items-center justify-between flex-shrink-0">
@@ -313,34 +264,60 @@
     var monthlyChart = null;
     var sportChart   = null;
 
+
     function showTab(tab) {
         var lapanganEl  = document.getElementById('container-lapangan');
         var revenueEl   = document.getElementById('container-revenue');
-        var navLapangan = document.getElementById('nav-lapangan');
-        var navRevenue  = document.getElementById('nav-revenue');
         var title       = document.getElementById('page-title');
         var subtitle    = document.getElementById('page-subtitle');
         var btnTambah   = document.getElementById('btn-tambah-lapangan');
 
+        // Cari sidebar links berdasarkan href (kompatibel dengan partial sidebar terpusat)
+        var sidebarLinks = document.querySelectorAll('aside .sidebar-link');
+        var lapanganHref = '{{ route("owner.lapangan.index") }}';
+        var revenueHref  = lapanganHref + '?tab=revenue';
+
         if (tab === 'lapangan') {
             lapanganEl.classList.remove('hidden');
             revenueEl.classList.add('hidden');
-            navLapangan.classList.add('active');
-            navRevenue.classList.remove('active');
             title.textContent    = 'Lapangan Saya';
             subtitle.textContent = 'Kelola semua lapangan yang Anda daftarkan';
             btnTambah.classList.remove('hidden');
+            history.replaceState(null, '', lapanganHref);
+            // Update active state sidebar
+            sidebarLinks.forEach(function(link) {
+                if (link.getAttribute('href') === lapanganHref) {
+                    link.classList.add('active');
+                } else if (link.getAttribute('href') === revenueHref) {
+                    link.classList.remove('active');
+                }
+            });
         } else {
             lapanganEl.classList.add('hidden');
             revenueEl.classList.remove('hidden');
-            navRevenue.classList.add('active');
-            navLapangan.classList.remove('active');
             title.textContent    = 'Revenue Analytics';
             subtitle.textContent = 'Ringkasan keuangan lapangan Anda';
             btnTambah.classList.add('hidden');
+            history.replaceState(null, '', revenueHref);
+            // Update active state sidebar
+            sidebarLinks.forEach(function(link) {
+                if (link.getAttribute('href') === revenueHref) {
+                    link.classList.add('active');
+                } else if (link.getAttribute('href') === lapanganHref) {
+                    link.classList.remove('active');
+                }
+            });
             initCharts();
         }
     }
+
+    // Otomatis buka tab revenue jika URL mengandung ?tab=revenue
+    document.addEventListener('DOMContentLoaded', function () {
+        var urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('tab') === 'revenue') {
+            showTab('revenue');
+        }
+    });
 
     function initCharts() {
         if (!monthlyChart) {
