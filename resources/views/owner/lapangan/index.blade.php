@@ -53,6 +53,43 @@
 
         <div id="container-lapangan">
 
+            <!-- Insight Performa Lapangan Section -->
+            <div class="mb-8 animate-in">
+                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4">Insight Performa Lapangan</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    @forelse($topLapangan as $index => $topItem)
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 relative overflow-hidden flex items-center gap-4">
+                        <!-- Rank Badge -->
+                        <div class="absolute top-0 right-0 w-10 h-10 bg-emerald-500 text-white font-bold flex items-center justify-center rounded-bl-2xl text-xs shadow-sm">
+                            #{{ $index + 1 }}
+                        </div>
+                        
+                        <!-- Court Photo / Sport Icon -->
+                        @if($topItem->foto_lapangan)
+                        <img src="{{ asset('storage/' . $topItem->foto_lapangan) }}" alt="{{ $topItem->nama_lapangan }}" class="w-14 h-14 rounded-xl object-cover flex-shrink-0">
+                        @else
+                        <div class="w-14 h-14 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+                        </div>
+                        @endif
+
+                        <div class="min-w-0 pr-8">
+                            <p class="text-slate-800 font-bold text-sm truncate">{{ $topItem->nama_lapangan }}</p>
+                            <p class="text-slate-400 text-xs mt-0.5">{{ $topItem->jenis_olahraga }}</p>
+                            <p class="text-emerald-600 font-semibold text-xs mt-2 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                                <span>{{ $topItem->bookings_count ?? 0 }} Booking</span>
+                            </p>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="col-span-3 bg-white rounded-2xl p-8 text-center border border-slate-100 shadow-sm text-slate-400 text-sm">
+                        Belum ada data performa lapangan.
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+
             <form method="GET" action="{{ route('owner.lapangan.index') }}" class="bg-white rounded-2xl shadow-sm border border-slate-100 px-5 py-4 mb-4 flex flex-wrap items-end gap-3">
                 <div class="flex-1 min-w-[180px]">
                     <label class="block text-xs font-semibold text-slate-500 mb-1.5">Cari Lapangan</label>

@@ -69,7 +69,7 @@ class Lapangan extends Model
      */
     public function bookings(): HasMany
     {
-        return $this->hasMany(Booking::class, 'lapangan_id');
+        return $this->hasMany(Pemesanan::class, 'lapangan_id');
     }
 
     public function ulasan(): HasMany

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Tarik Dana — Tinggal Klik Owner">
-    <title>Tarik Dana — Tinggal Klik</title>
+    <meta name="description" content="Finansial Owner — Tinggal Klik">
+    <title>Finansial — Tinggal Klik</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,6 +14,8 @@
         .sidebar-link { display:flex; align-items:center; gap:0.75rem; padding:0.625rem 1rem; border-radius:0.625rem; font-size:0.875rem; font-weight:500; color:#94a3b8; transition:background 0.15s,color 0.15s; }
         .sidebar-link:hover { background:rgba(255,255,255,0.06); color:#f1f5f9; }
         .sidebar-link.active { background:rgba(16,185,129,0.15); color:#34d399; }
+        .stat-card { transition:transform 0.2s ease,box-shadow 0.2s ease; }
+        .stat-card:hover { transform:translateY(-3px); box-shadow:0 20px 40px rgba(0,0,0,0.10); }
         .form-input { width:100%; padding:0.625rem 0.875rem; border-radius:0.625rem; border:1px solid #e2e8f0; font-size:0.875rem; transition:border-color 0.15s,box-shadow 0.15s; background:#fff; outline:none; }
         .form-input:focus { border-color:#10b981; box-shadow:0 0 0 3px rgba(16,185,129,0.1); }
         .form-label { display:block; font-size:0.75rem; font-weight:600; color:#475569; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.375rem; }
@@ -30,33 +32,94 @@
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
         </a>
         <div>
-            <h1 class="text-lg font-semibold text-slate-900">Tarik Dana</h1>
-            <p class="text-xs text-slate-400 mt-0.5">Ajukan permintaan penarikan saldo</p>
+            <h1 class="text-lg font-semibold text-slate-900">Finansial</h1>
+            <p class="text-xs text-slate-400 mt-0.5">Kelola keuangan dan ajukan penarikan saldo</p>
         </div>
     </header>
 
     <main class="flex-1 overflow-y-auto px-8 py-7">
-        <div class="max-w-2xl space-y-5">
+        <div class="max-w-5xl space-y-7">
 
-            <div id="saldo-info-card" class="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl p-6 text-white shadow-lg">
-                <p class="text-sm font-medium text-emerald-100 uppercase tracking-wider">Saldo Tersedia</p>
-                <p class="text-4xl font-bold mt-2">Rp {{ number_format(max(0, $saldoTersedia), 0, ',', '.') }}</p>
-                <p class="text-emerald-100 text-sm mt-2">
-                    @if($saldoTersedia <= 0)
-                    Belum ada saldo yang bisa ditarik saat ini.
-                    @else
-                    Anda dapat menarik hingga jumlah di atas.
-                    @endif
-                </p>
-                @if($saldoTersedia < 10000 && $saldoTersedia > 0)
-                <div class="mt-3 bg-white/20 rounded-lg px-3 py-2 text-xs font-medium text-white">
-                    ⚠️ Minimum penarikan Rp 10.000. Saldo belum mencukupi.
+            <section id="kpi-cards" aria-label="Financial KPI">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+
+                    <div id="card-pendapatan" class="stat-card bg-white rounded-2xl shadow-sm border border-slate-100 p-6 relative overflow-hidden">
+                        <div class="absolute -top-6 -right-6 w-24 h-24 bg-emerald-50 rounded-full opacity-60"></div>
+                        <div class="flex items-start justify-between relative">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">Total Pendapatan Bersih</p>
+                                <p class="text-2xl font-bold text-slate-900 leading-tight">Rp {{ number_format($totalPendapatanBersih, 0, ',', '.') }}</p>
+                                <p class="text-xs text-slate-400 mt-1">dari transaksi lunas</p>
+                            </div>
+                            <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-50">
+                            <span class="inline-flex items-center gap-1 text-xs text-emerald-600 font-medium">
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                                Total akumulatif
+                            </span>
+                        </div>
+                    </div>
+
+                    <div id="card-pending" class="stat-card bg-white rounded-2xl shadow-sm border border-slate-100 p-6 relative overflow-hidden">
+                        <div class="absolute -top-6 -right-6 w-24 h-24 {{ $totalPending > 0 ? 'bg-amber-50' : 'bg-slate-50' }} rounded-full opacity-60"></div>
+                        <div class="flex items-start justify-between relative">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">Dana Dikunci / Pending</p>
+                                <p class="text-2xl font-bold text-slate-900 leading-tight">Rp {{ number_format($totalPending, 0, ',', '.') }}</p>
+                                <p class="text-xs text-slate-400 mt-1">sedang diproses admin</p>
+                            </div>
+                            <div class="w-11 h-11 rounded-xl {{ $totalPending > 0 ? 'bg-amber-50' : 'bg-slate-50' }} flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 {{ $totalPending > 0 ? 'text-amber-500' : 'text-slate-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-50">
+                            @if($totalPending > 0)
+                            <span class="inline-flex items-center gap-1 text-xs text-amber-600 font-medium">
+                                <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
+                                Menunggu persetujuan
+                            </span>
+                            @else
+                            <span class="text-xs text-slate-400 font-medium">Tidak ada penarikan pending</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div id="card-saldo" class="stat-card bg-white rounded-2xl shadow-sm border border-slate-100 p-6 relative overflow-hidden">
+                        <div class="absolute -top-6 -right-6 w-24 h-24 bg-sky-50 rounded-full opacity-60"></div>
+                        <div class="flex items-start justify-between relative">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">Saldo Bisa Ditarik</p>
+                                <p class="text-2xl font-bold {{ $saldoTersedia > 0 ? 'text-sky-600' : 'text-slate-400' }} leading-tight">Rp {{ number_format(max(0, $saldoTersedia), 0, ',', '.') }}</p>
+                                <p class="text-xs text-slate-400 mt-1">tersedia sekarang</p>
+                            </div>
+                            <div class="w-11 h-11 rounded-xl bg-sky-50 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-50">
+                            @if($saldoTersedia > 0)
+                            <span class="text-xs text-sky-600 font-medium">Siap untuk ditarik</span>
+                            @else
+                            <span class="text-xs text-slate-400 font-medium">Belum ada saldo</span>
+                            @endif
+                        </div>
+                    </div>
+
                 </div>
-                @endif
+            </section>
+
+            @if($saldoTersedia < 10000 && $saldoTersedia > 0)
+            <div id="alert-minimum-saldo" class="max-w-2xl flex items-center gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm font-medium">
+                <svg class="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <span>Minimum penarikan saldo adalah Rp 10.000. Saldo Anda saat ini belum mencukupi.</span>
             </div>
+            @endif
 
             @if($errors->any())
-            <div id="alert-errors" class="flex items-start gap-3 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
+            <div id="alert-errors" class="max-w-2xl flex items-start gap-3 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm">
                 <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                 <div>
                     <p class="font-semibold mb-1">Validasi gagal:</p>
@@ -70,7 +133,7 @@
             @endif
 
             @if($saldoTersedia >= 10000)
-            <form method="POST" action="{{ route('owner.withdrawal.store') }}" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-5">
+            <form method="POST" action="{{ route('owner.withdrawal.store') }}" class="max-w-2xl bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-5">
                 @csrf
 
                 <div>
@@ -109,7 +172,7 @@
                 </div>
             </form>
             @else
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 text-center">
+            <div class="max-w-2xl bg-white rounded-2xl shadow-sm border border-slate-100 p-8 text-center">
                 <div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
                     <svg class="w-7 h-7 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
                 </div>
