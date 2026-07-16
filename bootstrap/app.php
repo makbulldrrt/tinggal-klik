@@ -19,6 +19,21 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'api/webhook/midtrans',
         ]);
+        $middleware->redirectUsersTo(function ($request) {
+            $user = $request->user();
+            if ($user) {
+                if ($user->role === 'admin') {
+                    return '/admin/transactions';
+                }
+                if ($user->role === 'owner') {
+                    return '/owner/lapangan';
+                }
+                if ($user->role === 'pelanggan') {
+                    return '/lapangan';
+                }
+            }
+            return '/dashboard';
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

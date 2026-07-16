@@ -24,6 +24,10 @@ class AuthenticatedSessionController extends Controller
 
         $role = Auth::user()->role;
 
+        if ($role === 'admin') {
+            return redirect('/admin/transactions');
+        }
+
         if ($role === 'owner') {
             return redirect('/owner/lapangan');
         }

@@ -10,6 +10,10 @@ use App\Http\Controllers\Owner\WithdrawalController;
 use App\Http\Controllers\PemesananController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MitraController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminWithdrawalController;
+use App\Http\Controllers\Admin\AdminOwnerController;
+use App\Http\Controllers\Admin\AdminTransactionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -42,8 +46,14 @@ Route::middleware(['auth', 'verified', 'role:pelanggan'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::resource('lapangan', LapanganController::class);
+    Route::get('/', function () {
+        return redirect()->route('admin.transactions.index');
+    });
+    Route::get('/withdrawals', [AdminWithdrawalController::class, 'index'])->name('withdrawals.index');
+    Route::post('/withdrawals/{id}/approve', [AdminWithdrawalController::class, 'approve'])->name('withdrawals.approve');
+    Route::post('/withdrawals/{id}/reject', [AdminWithdrawalController::class, 'reject'])->name('withdrawals.reject');
+    Route::get('/owners', [AdminOwnerController::class, 'index'])->name('owners.index');
+    Route::get('/transactions', [AdminTransactionController::class, 'index'])->name('transactions.index');
 });
 
 Route::middleware(['auth', 'verified', 'role:owner'])->prefix('owner')->name('owner.')->group(function () {

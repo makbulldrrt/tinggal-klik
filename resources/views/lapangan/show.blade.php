@@ -192,7 +192,7 @@
                     @if($lapangan->owner)
                     <div class="text-right text-sm text-outline shrink-0">
                         <span class="material-symbols-outlined" style="font-size:14px;vertical-align:-2px;">person</span>
-                        {{ $lapangan->owner->name }}
+                        {{ $lapangan->owner->nama_bisnis ?? $lapangan->owner->name }}
                     </div>
                     @endif
                 </div>
