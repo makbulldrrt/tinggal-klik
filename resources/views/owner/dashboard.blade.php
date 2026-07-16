@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Dashboard Keuangan Owner — Tinggal Klik">
-    <title>Dashboard Keuangan — Tinggal Klik</title>
+    <meta name="description" content="History Transaksi Owner — Tinggal Klik">
+    <title>History Transaksi — Tinggal Klik</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -17,8 +17,6 @@
         .sidebar-link { display:flex; align-items:center; gap:0.75rem; padding:0.625rem 1rem; border-radius:0.625rem; font-size:0.875rem; font-weight:500; color:#94a3b8; transition:background 0.15s,color 0.15s; }
         .sidebar-link:hover { background:rgba(255,255,255,0.06); color:#f1f5f9; }
         .sidebar-link.active { background:rgba(16,185,129,0.15); color:#34d399; }
-        .stat-card { transition:transform 0.2s ease,box-shadow 0.2s ease; }
-        .stat-card:hover { transform:translateY(-3px); box-shadow:0 20px 40px rgba(0,0,0,0.10); }
         .table-row { transition:background 0.12s; }
         .table-row:hover { background:#f8fafc; }
         ::-webkit-scrollbar { width:5px; height:5px; }
@@ -28,28 +26,28 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased">
 <div class="flex h-screen overflow-hidden">
-
+ 
 @include('owner.partials.sidebar')
-
+ 
 <div class="flex-1 flex flex-col overflow-hidden">
     <header class="bg-white border-b border-slate-100 px-8 py-4 flex items-center justify-between flex-shrink-0">
         <div>
-            <h1 class="text-lg font-semibold text-slate-900">Dashboard Finansial</h1>
+            <h1 class="text-lg font-semibold text-slate-900">History Transaksi</h1>
             <p class="text-xs text-slate-400 mt-0.5">{{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('l, d F Y') }}</p>
         </div>
         <div class="flex items-center gap-3">
             <a href="{{ route('owner.withdrawal.create') }}" id="btn-tarik-dana-header" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm hover:from-emerald-600 hover:to-teal-600 transition-all">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                Tarik Dana
+                Kelola Finansial
             </a>
             <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-xs font-bold">
                 {{ strtoupper(substr(auth()->user()->name ?? 'O', 0, 1)) }}
             </div>
         </div>
     </header>
-
+ 
     <main class="flex-1 overflow-y-auto px-8 py-7 space-y-7">
-
+ 
         @if(session('success'))
         <div id="alert-success" class="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium">
             <svg class="w-5 h-5 text-emerald-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -57,78 +55,48 @@
         </div>
         @endif
 
-        <section id="kpi-cards" aria-label="Financial KPI">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-
-                <div id="card-pendapatan" class="stat-card bg-white rounded-2xl shadow-sm border border-slate-100 p-6 relative overflow-hidden">
-                    <div class="absolute -top-6 -right-6 w-24 h-24 bg-emerald-50 rounded-full opacity-60"></div>
-                    <div class="flex items-start justify-between relative">
-                        <div>
-                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">Total Pendapatan Bersih</p>
-                            <p class="text-2xl font-bold text-slate-900 leading-tight">Rp {{ number_format($totalPendapatanBersih, 0, ',', '.') }}</p>
-                            <p class="text-xs text-slate-400 mt-1">dari transaksi lunas</p>
-                        </div>
-                        <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-slate-50">
-                        <span class="inline-flex items-center gap-1 text-xs text-emerald-600 font-medium">
-                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
-                            Total akumulatif
-                        </span>
-                    </div>
-                </div>
-
-                <div id="card-pending" class="stat-card bg-white rounded-2xl shadow-sm border border-slate-100 p-6 relative overflow-hidden">
-                    <div class="absolute -top-6 -right-6 w-24 h-24 {{ $totalPending > 0 ? 'bg-amber-50' : 'bg-slate-50' }} rounded-full opacity-60"></div>
-                    <div class="flex items-start justify-between relative">
-                        <div>
-                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">Dana Dikunci / Pending</p>
-                            <p class="text-2xl font-bold text-slate-900 leading-tight">Rp {{ number_format($totalPending, 0, ',', '.') }}</p>
-                            <p class="text-xs text-slate-400 mt-1">sedang diproses admin</p>
-                        </div>
-                        <div class="w-11 h-11 rounded-xl {{ $totalPending > 0 ? 'bg-amber-50' : 'bg-slate-50' }} flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 {{ $totalPending > 0 ? 'text-amber-500' : 'text-slate-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-slate-50">
-                        @if($totalPending > 0)
-                        <span class="inline-flex items-center gap-1 text-xs text-amber-600 font-medium">
-                            <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
-                            Menunggu persetujuan
-                        </span>
-                        @else
-                        <span class="text-xs text-slate-400 font-medium">Tidak ada penarikan pending</span>
-                        @endif
-                    </div>
-                </div>
-
-                <div id="card-saldo" class="stat-card bg-white rounded-2xl shadow-sm border border-slate-100 p-6 relative overflow-hidden">
-                    <div class="absolute -top-6 -right-6 w-24 h-24 bg-sky-50 rounded-full opacity-60"></div>
-                    <div class="flex items-start justify-between relative">
-                        <div>
-                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">Saldo Bisa Ditarik</p>
-                            <p class="text-2xl font-bold {{ $saldoTersedia > 0 ? 'text-sky-600' : 'text-slate-400' }} leading-tight">Rp {{ number_format(max(0, $saldoTersedia), 0, ',', '.') }}</p>
-                            <p class="text-xs text-slate-400 mt-1">tersedia sekarang</p>
-                        </div>
-                        <div class="w-11 h-11 rounded-xl bg-sky-50 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                        </div>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-slate-50">
-                        @if($saldoTersedia > 0)
-                        <a href="{{ route('owner.withdrawal.create') }}" class="inline-flex items-center gap-1 text-xs text-sky-600 font-semibold hover:text-sky-700 transition-colors">
-                            Tarik Sekarang &rarr;
-                        </a>
-                        @else
-                        <span class="text-xs text-slate-400 font-medium">Belum ada saldo</span>
-                        @endif
-                    </div>
-                </div>
-
+        <!-- Filter Form -->
+        <form method="GET" action="{{ route('owner.dashboard') }}" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col md:flex-row items-end gap-4">
+            <div class="flex-1 w-full">
+                <label for="search" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Cari</label>
+                <input type="text" id="search" name="search" value="{{ request('search') }}" placeholder="Cari nama pelanggan..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all bg-slate-50/50">
             </div>
-        </section>
+
+            <div class="w-full md:w-48">
+                <label for="bulan" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Bulan</label>
+                <select id="bulan" name="bulan" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all bg-slate-50/50">
+                    <option value="">Semua Bulan</option>
+                    @foreach([
+                        '1' => 'Januari', '2' => 'Februari', '3' => 'Maret', '4' => 'April', 
+                        '5' => 'Mei', '6' => 'Juni', '7' => 'Juli', '8' => 'Agustus', 
+                        '9' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember'
+                    ] as $num => $name)
+                        <option value="{{ $num }}" {{ (request('bulan') ?? request('month')) == $num ? 'selected' : '' }}>{{ $name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="w-full md:w-36">
+                <label for="tahun" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Tahun</label>
+                <select id="tahun" name="tahun" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all bg-slate-50/50">
+                    <option value="">Semua Tahun</option>
+                    @for($y = date('Y') + 1; $y >= date('Y') - 3; $y--)
+                        <option value="{{ $y }}" {{ (request('tahun') ?? request('year')) == $y ? 'selected' : '' }}>{{ $y }}</option>
+                    @endfor
+                </select>
+            </div>
+
+            <div class="w-full md:w-auto flex gap-2">
+                @if(request()->anyFilled(['search', 'bulan', 'month', 'tahun', 'year']))
+                    <a href="{{ route('owner.dashboard') }}" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all text-center whitespace-nowrap">
+                        Reset
+                    </a>
+                @endif
+                <button type="submit" class="px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-all shadow-sm whitespace-nowrap flex-1 md:flex-initial">
+                    Filter
+                </button>
+            </div>
+        </form>
 
         <section id="transaksi-table" aria-label="Riwayat Transaksi">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col overflow-hidden">
@@ -152,7 +120,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50">
-                            @forelse($riwayatBooking as $booking)
+                            @forelse($transaksi as $booking)
                             <tr class="table-row">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center gap-3">
@@ -227,6 +195,11 @@
                         </tbody>
                     </table>
                 </div>
+                @if($transaksi->hasPages())
+                <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/50">
+                    {{ $transaksi->links() }}
+                </div>
+                @endif
             </div>
         </section>
 

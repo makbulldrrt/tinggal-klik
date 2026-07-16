@@ -16,17 +16,25 @@ class LapanganController extends Controller
 
         $lapangan = Lapangan::where('user_id', $ownerId)
             ->when($request->filled('search'), function ($q) use ($request) {
-                $q->where('nama_lapangan', 'like', '%' . $request->search . '%');
+                return $q->where('nama_lapangan', 'like', '%' . $request->search . '%');
             })
             ->when($request->filled('kategori'), function ($q) use ($request) {
-                $q->where('jenis_olahraga', $request->kategori);
+                return $q->where('jenis_olahraga', $request->kategori);
             })
             ->when($request->filled('status'), function ($q) use ($request) {
-                $q->where('status', $request->status);
+                return $q->where('status', $request->status);
             })
             ->latest()
-            ->paginate(10)
+            ->paginate(5)
             ->withQueryString();
+
+        $topLapangan = Lapangan::where('user_id', $ownerId)
+            ->withCount(['bookings' => function ($query) {
+                $query->where('status_pembayaran', 'lunas');
+            }])
+            ->orderByDesc('bookings_count')
+            ->take(3)
+            ->get();
 
         $ownerLapanganIds = Lapangan::where('user_id', $ownerId)->pluck('id');
 
@@ -74,6 +82,7 @@ class LapanganController extends Controller
 
         return view('owner.lapangan.index', compact(
             'lapangan',
+            'topLapangan',
             'totalKotor',
             'totalPotongan',
             'totalBersih',

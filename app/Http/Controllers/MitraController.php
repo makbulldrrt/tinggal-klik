@@ -25,8 +25,8 @@ class MitraController extends Controller
 
         if ($user && $user->role === 'pelanggan') {
             $user->name = $request->nama_pemilik;
+            $user->nama_bisnis = $request->nama_bisnis;
             $user->role = 'owner';
-            
             $user->save();
         }
 

@@ -10,55 +10,48 @@ class LapanganSeeder extends Seeder
 {
     public function run(): void
     {
-        // Ambil user pertama (Admin) sebagai owner/vendor dummy
-        $owner = User::first();
-        $ownerId = $owner ? $owner->id : null;
+        $owner1 = User::where('email', 'decky@tinggalklik.com')->first();
+        $owner2 = User::where('email', 'mitra@tinggalklik.com')->first();
+
+        $ownerId1 = $owner1 ? $owner1->id : null;
+        $ownerId2 = $owner2 ? $owner2->id : null;
 
         $lapangan = [
             [
-                'user_id'        => $ownerId,
+                'user_id'        => $ownerId1,
                 'nama_lapangan'  => 'Lapangan Futsal Merdeka',
                 'jenis_olahraga' => 'Futsal',
                 'harga_per_jam'  => 100000,
                 'deskripsi'      => 'Lapangan futsal indoor berstandar nasional dengan rumput sintetis berkualitas tinggi, pencahayaan LED, dan ruang ganti tersedia.',
                 'lokasi'         => 'Sudirman, Jakarta Pusat',
-                'status'         => 'tersedia',
+                'status'         => 'Tersedia',
             ],
             [
-                'user_id'        => $ownerId,
+                'user_id'        => $ownerId1,
                 'nama_lapangan'  => 'Lapangan Badminton Sentosa',
                 'jenis_olahraga' => 'Badminton',
                 'harga_per_jam'  => 75000,
                 'deskripsi'      => 'Lapangan badminton indoor dengan lantai kayu parket anti-slip, net standar BWF, dan sistem ventilasi yang baik.',
                 'lokasi'         => 'Kelapa Gading, Jakarta Utara',
-                'status'         => 'tersedia',
+                'status'         => 'Tersedia',
             ],
             [
-                'user_id'        => $ownerId,
+                'user_id'        => $ownerId2,
                 'nama_lapangan'  => 'Lapangan Basket Hall Diponegoro',
                 'jenis_olahraga' => 'Basket',
                 'harga_per_jam'  => 120000,
                 'deskripsi'      => 'Lapangan basket outdoor half-court dengan ring standar NBA, permukaan aspal halus, dan tersedia penerangan untuk malam hari.',
                 'lokasi'         => 'Menteng, Jakarta Pusat',
-                'status'         => 'pemeliharaan',
+                'status'         => 'Pemeliharaan',
             ],
             [
-                'user_id'        => $ownerId,
+                'user_id'        => $ownerId2,
                 'nama_lapangan'  => 'Tennis Court Bukit Mas',
                 'jenis_olahraga' => 'Tennis',
                 'harga_per_jam'  => 95000,
                 'deskripsi'      => 'Lapangan tennis outdoor berkualitas tinggi dengan permukaan keras (hard court).',
                 'lokasi'         => 'Dago, Bandung',
-                'status'         => 'tersedia',
-            ],
-            [
-                'user_id'        => $ownerId,
-                'nama_lapangan'  => 'Voli Pantai Ancol',
-                'jenis_olahraga' => 'Voli',
-                'harga_per_jam'  => 60000,
-                'deskripsi'      => 'Lapangan voli pantai dengan pasir putih lembut di kawasan pantai Ancol.',
-                'lokasi'         => 'Ancol, Jakarta Utara',
-                'status'         => 'tersedia',
+                'status'         => 'Tersedia',
             ],
         ];
 

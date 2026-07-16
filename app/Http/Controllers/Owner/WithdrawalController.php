@@ -33,8 +33,25 @@ class WithdrawalController extends Controller
 
     public function create()
     {
-        $saldoTersedia = $this->getSaldoTersedia();
-        return view('owner.withdrawal.create', compact('saldoTersedia'));
+        $lapanganIds = Lapangan::where('user_id', auth()->id())->pluck('id');
+
+        $totalPendapatanBersih = (int) Transaction::where('status_pembayaran', 'paid')
+            ->whereHas('pemesanan', function ($q) use ($lapanganIds) {
+                $q->whereIn('lapangan_id', $lapanganIds);
+            })
+            ->sum('net_amount');
+
+        $totalDitarik = (int) Withdrawal::where('user_id', auth()->id())
+            ->where('status', 'approved')
+            ->sum('jumlah_penarikan');
+
+        $totalPending = (int) Withdrawal::where('user_id', auth()->id())
+            ->where('status', 'pending')
+            ->sum('jumlah_penarikan');
+
+        $saldoTersedia = $totalPendapatanBersih - $totalDitarik - $totalPending;
+
+        return view('owner.withdrawal.create', compact('totalPendapatanBersih', 'totalPending', 'saldoTersedia'));
     }
 
     public function store(Request $request)

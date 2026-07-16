@@ -99,6 +99,9 @@
                 <p class="text-sm font-bold text-blue-900">
                     Total Bayar: <span id="disp-total">Rp 0</span>
                 </p>
+                <p class="text-xs text-blue-700">
+                    Setiap transaksi dikenakan biaya admin platform sebesar 2%.
+                </p>
                 <button type="button" id="btn-reset" class="text-xs text-red-500 underline mt-1">Reset Pilihan</button>
             </div>
 

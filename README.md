@@ -8,7 +8,7 @@ Sistem manajemen dan penyewaan lapangan olahraga (GOR) berbasis web yang diranca
 *   **Otomatisasi Webhook Pembayaran:** Integrasi dengan *Payment Gateway* Midtrans (Sandbox Environment). Perubahan status pembayaran dari `belum_bayar` menjadi `lunas` diproses secara otomatis melalui *callback/webhook* tanpa intervensi manual dari admin atau owner.
 *   **Peta Interaktif & Geolokasi:** Integrasi Leaflet.js untuk pemetaan lokasi GOR secara presisi berbasis koordinat lintang/bujur (Latitude/Longitude) yang terhubung langsung dengan Google Maps untuk kemudahan rute.
 *   **Autentikasi & Kontrol Akses Multi-Role:** Pembagian hak akses terproteksi berbasis Laravel Middleware:
-    *   **Admin:** Monitoring metrik platform, manajemen pengguna, dan penanganan data master.
+    *   **Admin:** Monitoring metrik finansial platform, manajemen mitra (owner), dan persetujuan penarikan dana (*withdrawal*).
     *   **Owner GOR:** Manajemen operasional lapangan, pemantauan riwayat transaksi masuk, dan pengajuan penarikan dana (*withdrawal*).
     *   **Pelanggan:** Eksplorasi katalog GOR, pemesanan slot jadwal, dan manajemen riwayat ulasan/rating.
 *   **REST API Terproteksi:** Penyediaan endpoint data berformat JSON murni untuk integrasi eksternal, diamankan menggunakan Laravel Sanctum.

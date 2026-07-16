@@ -19,6 +19,24 @@ class UserSeeder extends Seeder
         ]);
 
         User::create([
+            'name'              => 'decky apip',
+            'email'             => 'decky@tinggalklik.com',
+            'role'              => 'owner',
+            'nama_bisnis'       => 'Decky Sport Center',
+            'password'          => Hash::make('password123'),
+            'email_verified_at' => now(),
+        ]);
+
+        User::create([
+            'name'              => 'Mitra Futsal Sejahtera',
+            'email'             => 'mitra@tinggalklik.com',
+            'role'              => 'owner',
+            'nama_bisnis'       => 'Arena Futsal Merdeka',
+            'password'          => Hash::make('password123'),
+            'email_verified_at' => now(),
+        ]);
+
+        User::create([
             'name'              => 'Budi Santoso',
             'email'             => 'budi@tinggalklik.com',
             'role'              => 'pelanggan',
@@ -30,14 +48,6 @@ class UserSeeder extends Seeder
             'name'              => 'Siti Rahayu',
             'email'             => 'siti@tinggalklik.com',
             'role'              => 'pelanggan',
-            'password'          => Hash::make('password123'),
-            'email_verified_at' => now(),
-        ]);
-
-        User::create([
-            'name'              => 'decky apip',
-            'email'             => 'decky@tinggalklik.com',
-            'role'              => 'owner',
             'password'          => Hash::make('password123'),
             'email_verified_at' => now(),
         ]);

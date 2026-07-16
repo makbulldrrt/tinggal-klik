@@ -437,7 +437,7 @@
             <div class="court-card-body">
                 <h2 class="court-name">{{ $court->nama_lapangan }}</h2>
 
-                @php $vendorName = $court->owner->name ?? null; @endphp
+                @php $vendorName = $court->owner->nama_bisnis ?? $court->owner->name ?? null; @endphp
                 @if($vendorName)
                 <div style="display:flex;align-items:center;gap:4px;margin-bottom:2px;">
                     <span class="material-symbols-outlined" style="font-size:13px;color:#727784;font-variation-settings:'FILL' 0;">storefront</span>

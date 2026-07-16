@@ -126,6 +126,7 @@
             <hr class="divider" style="margin-top:28px;">
 
             <p style="font-size:12px;color:#94a3b8;text-align:center;line-height:1.7;">
+                Setiap transaksi dikenakan biaya admin platform sebesar 2%.<br>
                 Dokumen ini merupakan bukti pembayaran resmi yang dikeluarkan oleh sistem Tinggal-Klik.<br>
                 Simpan dokumen ini sebagai bukti sewa lapangan Anda.
             </p>
