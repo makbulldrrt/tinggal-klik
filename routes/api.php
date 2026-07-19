@@ -1,11 +1,30 @@
 <?php
 
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\LapanganApiController;
 use App\Http\Controllers\Api\UlasanApiController;
+use App\Http\Controllers\Customer\LapanganController as CustomerLapanganController;
+use App\Http\Controllers\Api\Owner\LapanganController as OwnerLapanganController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/webhook/midtrans', [WebhookController::class, 'handleMidtrans']);
+
+Route::post('/auth/register', [AuthController::class, 'register']);
+Route::post('/auth/login', [AuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+
+    Route::middleware('role:pelanggan')->prefix('customer')->group(function () {
+        Route::get('/lapangan', [CustomerLapanganController::class, 'index']);
+        Route::get('/lapangan/{id}', [CustomerLapanganController::class, 'show']);
+    });
+
+    Route::middleware('role:owner')->prefix('owner')->group(function () {
+        Route::apiResource('/lapangan', OwnerLapanganController::class);
+    });
+});
 
 Route::get('/lapangan', [\App\Http\Controllers\Api\LapanganApiController::class, 'index']);
 Route::get('/lapangan/{id}', [\App\Http\Controllers\Api\LapanganApiController::class, 'show']);
