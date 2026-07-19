@@ -3,26 +3,28 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\LapanganResource;
 use App\Models\Lapangan;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class LapanganController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(): AnonymousResourceCollection
     {
-        $lapangan = Lapangan::where('status', true)->with('owner:id,name')->get();
+        $lapangan = Lapangan::where('status', 'tersedia')->get();
 
-        return response()->json($lapangan);
+        return LapanganResource::collection($lapangan);
     }
 
-    public function show(int $id): JsonResponse
+    public function show(int $id): LapanganResource|JsonResponse
     {
-        $lapangan = Lapangan::with('owner:id,name')->find($id);
+        $lapangan = Lapangan::find($id);
 
-        if (! $lapangan || ! $lapangan->status) {
+        if (! $lapangan || $lapangan->status !== 'tersedia') {
             return response()->json(['message' => 'Lapangan tidak ditemukan.'], 404);
         }
 
-        return response()->json($lapangan);
+        return new LapanganResource($lapangan);
     }
 }
