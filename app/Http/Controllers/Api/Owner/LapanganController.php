@@ -22,6 +22,9 @@ class LapanganController extends Controller
             ->when($request->search, function ($query, $search) {
                 $query->where('nama_lapangan', 'LIKE', "%{$search}%");
             })
+            ->when($request->category, function ($query, $category) {
+                return $query->where('jenis_olahraga', $category);
+            })
             ->paginate(10);
 
         return LapanganResource::collection($lapangan);

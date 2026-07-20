@@ -20,6 +20,16 @@ class LapanganResource extends JsonResource
             'status'       => $this->status === 'tersedia',
             'lokasi'       => $this->lokasi,
             'foto_lapangan'=> $this->foto_lapangan,
+            'reviews'      => $this->whenLoaded('ulasan', fn () => $this->ulasan->map(fn ($u) => [
+                'id'         => $u->id,
+                'rating'     => $u->rating,
+                'komentar'   => $u->komentar,
+                'created_at' => $u->created_at?->toDateString(),
+                'user'       => [
+                    'id'   => $u->user?->id,
+                    'name' => $u->user?->name,
+                ],
+            ])),
         ];
     }
 }

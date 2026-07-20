@@ -17,6 +17,9 @@ class LapanganController extends Controller
             ->when($request->search, function ($query, $search) {
                 $query->where('nama_lapangan', 'LIKE', "%{$search}%");
             })
+            ->when($request->category, function ($query, $category) {
+                return $query->where('jenis_olahraga', $category);
+            })
             ->paginate(10);
 
         return LapanganResource::collection($lapangan);
@@ -24,7 +27,7 @@ class LapanganController extends Controller
 
     public function show(int $id): LapanganResource|JsonResponse
     {
-        $lapangan = Lapangan::find($id);
+        $lapangan = Lapangan::with(['ulasan.user'])->find($id);
 
         if (! $lapangan || $lapangan->status !== 'tersedia') {
             return response()->json(['message' => 'Lapangan tidak ditemukan.'], 404);

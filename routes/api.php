@@ -37,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:owner')->prefix('owner')->group(function () {
         Route::apiResource('/lapangan', OwnerLapanganController::class);
         Route::get('/dashboard', [DashboardController::class, 'index']);
+        Route::get('/dashboard/analytics', [DashboardController::class, 'getAnalyticsData']);
         Route::post('/withdrawal/request', [WithdrawalController::class, 'store']);
     });
 });
