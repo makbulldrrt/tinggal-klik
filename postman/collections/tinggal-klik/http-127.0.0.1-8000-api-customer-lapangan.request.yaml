@@ -1,0 +1,12 @@
+$kind: http-request
+name: http://127.0.0.1:8000/api/customer/lapangan
+description: ""
+url: http://127.0.0.1:8000/api/customer/lapangan
+method: GET
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: 2|ekAF46A0PBC85ecb6U9EXZMGaJhmKJzIpgVzI4y9afa14b2b
+order: 2377136332816894

@@ -13,20 +13,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Lapangan;
 use App\Models\Withdrawal;
 use Spatie\Permission\Traits\HasRoles;
+use Laravel\Sanctum\HasApiTokens;
 
 #[Fillable(['name', 'email', 'password', 'role', 'email_verified_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
-    use HasRoles;
+    use HasFactory, Notifiable, HasRoles, HasApiTokens;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -35,18 +29,11 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    /**
-     * Courts (lapangan) owned/registered by this user (role = owner).
-     * Referenced by LapanganController via Eager Loading.
-     */
     public function lapangan(): HasMany
     {
         return $this->hasMany(Lapangan::class, 'user_id');
     }
 
-    /**
-     * All bookings made BY this user (role = customer).
-     */
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class, 'user_id');

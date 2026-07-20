@@ -26,6 +26,8 @@ class Booking extends Model
         'jam_selesai',
         'total_harga',
         'status',
+        'snap_token',
+        'snap_url',
     ];
 
     /**
