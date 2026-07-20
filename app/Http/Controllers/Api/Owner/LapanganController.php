@@ -16,9 +16,15 @@ class LapanganController extends Controller
         return Lapangan::where('user_id', auth()->id());
     }
 
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        return LapanganResource::collection($this->ownedQuery()->get());
+        $lapangan = $this->ownedQuery()
+            ->when($request->search, function ($query, $search) {
+                $query->where('nama_lapangan', 'LIKE', "%{$search}%");
+            })
+            ->paginate(10);
+
+        return LapanganResource::collection($lapangan);
     }
 
     public function show(int $id): LapanganResource|JsonResponse
