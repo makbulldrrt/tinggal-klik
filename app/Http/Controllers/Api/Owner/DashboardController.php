@@ -39,10 +39,16 @@ class DashboardController extends Controller
         ->take(5)
         ->get();
 
+        $recentWithdrawals = \App\Models\Withdrawal::where('user_id', $userId)
+        ->latest()
+        ->take(5)
+        ->get();
+
         return response()->json([
-            'total_pendapatan'   => $totalPendapatan,
-            'total_lapangan'     => $totalLapangan,
+            'total_pendapatan'    => $totalPendapatan,
+            'total_lapangan'      => $totalLapangan,
             'recent_transactions' => $latestTransactions,
+            'recent_withdrawals'  => $recentWithdrawals,
         ]);
     }
 
