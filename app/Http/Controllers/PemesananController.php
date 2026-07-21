@@ -154,6 +154,9 @@ class PemesananController extends Controller
                         'first_name' => Auth::user()->name,
                         'email'      => Auth::user()->email,
                     ],
+                    'callbacks' => [
+                        'finish' => route('booking.history'),
+                    ],
                 ]);
 
             return $response->json('redirect_url');

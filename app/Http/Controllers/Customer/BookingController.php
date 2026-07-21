@@ -78,6 +78,9 @@ class BookingController extends Controller
                 'first_name' => auth()->user()->name,
                 'email' => auth()->user()->email,
             ],
+            'callbacks' => [
+                'finish' => url('/booking/history'),
+            ],
         ]);
 
         $snapToken = null;
